@@ -37,7 +37,7 @@ def make_simulation(
     >>> head = np.load('./segs.npy', allow_pickle=True)
     >>> segs = np.load('./head.npy')
     >>> image_tmp = dict(head=head, segs=segs)
-    >>> make_simulation(data=traces, fp="/Users/dump", 
+    >>> make_simulation(data=traces, fp="/Users/dump",
     vid_fname"/Users/dump/vid.mp4, image_tmp=image_tmp)
 
     """
@@ -137,7 +137,8 @@ def make_simulation(
         os.remove(vid_fname)
 
     # make video
-    cmd = f"ffmpeg -r 35 -f image2 -i {f_path}/%03d.png -vcodec libx264 -crf 25 -pix_fmt yuv420p {vid_fname}"
+    cmd = f"ffmpeg -r 35 -f image2 -i {f_path}/%03d.png -vcodec libx264\
+    -crf 25 -pix_fmt yuv420p {vid_fname}"
     os.system(cmd)
     print(f"Saving video to: {vid_fname}")
 
