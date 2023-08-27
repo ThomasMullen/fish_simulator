@@ -4,18 +4,18 @@ to x-y coorindates. Additionally, with interpolation functions
 from typing import Tuple, Any, Union
 import numpy as np
 from scipy.interpolate import interp1d
-from nptyping import NDArray
+from numpy.typing import NDArray
 
 class TailInterpolator:
     """Interpolates the tail keypoints to create a curve with a specified 
     number of segments.
     """
-    def __init__(self, tail_x:NDArray[(Any,), np.float64], tail_y:NDArray[(Any,), np.float64], n_segments:int=10)->None:
+    def __init__(self, tail_x:NDArray, tail_y:NDArray, n_segments:int=10)->None:
         """constructor
 
         Args:
-            tail_x (NDArray): array of existing tail x points
-            tail_y (NDArray): array of existing tail x points
+            tail_x (NDArray): 1D array of existing tail x points
+            tail_y (NDArray): 1D array of existing tail x points
             n_segments (int, optional): Number of key points to interpolate. Defaults to 10.
 
         Raises:
@@ -28,7 +28,7 @@ class TailInterpolator:
         if self.n_segments < 2:
             raise ValueError("There should be more than 3 keypoints.")
 
-    def interpolate(self) -> Tuple[NDArray[(Any,),float], NDArray[(Any,),float]]:
+    def interpolate(self) -> Tuple[NDArray, NDArray]:
         """Interpolate via cubis or linear using tail constructor.
 
         Returns:
