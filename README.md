@@ -1,4 +1,5 @@
 # Zebrafish Tail Animator
+![Pylint](https://github.com/ThomasMullen/zf_animator_tsm/actions/workflows/pylint.yml/badge.svg)
 
 Python toolbox to transform zebrafish tracking data to tail animations
 
