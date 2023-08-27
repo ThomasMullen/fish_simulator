@@ -1,72 +1,72 @@
 """Module that contains transformations from tail angle
 to x-y coorindates. Additionally, with interpolation functions
 """
+from typing import Tuple, Any, Union
 import numpy as np
 from scipy.interpolate import interp1d
+from nptyping import NDArray
 
-
-def interpolate_tail_keypoint(tail_x, tail_y, n_segments=10):
+class TailInterpolator:
+    """Interpolates the tail keypoints to create a curve with a specified 
+    number of segments.
     """
-    Interpolates the tail keypoints to create a curve with a specified number of segments.
+    def __init__(self, tail_x:NDArray[(Any,), np.float64], tail_y:NDArray[(Any,), np.float64], n_segments:int=10)->None:
+        """constructor
 
-    Parameters:
-        tail_x (numpy.ndarray): The x-coordinates of the tail keypoints.
-            Shape: (T, n_segments_init).
-        tail_y (numpy.ndarray): The y-coordinates of the tail keypoints.
-            Shape: (T, n_segments_init).
-        n_segments (int, optional): The number of segments to interpolate. Default: 10.
+        Args:
+            tail_x (NDArray): array of existing tail x points
+            tail_y (NDArray): array of existing tail x points
+            n_segments (int, optional): Number of key points to interpolate. Defaults to 10.
 
-    Returns:
-        numpy.ndarray: The interpolated x-coordinates of the tail keypoints. 
-            Shape: (T,n_segments+1).
-        numpy.ndarray: The interpolated y-coordinates of the tail keypoints. 
-            Shape: (T,n_segments+1).
-    """
-    if n_segments < 2:
-        raise ValueError("there should be more than 3 keypoints.")
+        Raises:
+            ValueError: Insufficient number of keypoints to interpolate.
+        """
+        self.tail_x = tail_x
+        self.tail_y = tail_y
+        self.n_segments = n_segments
 
-    # Extrapolate to 10 segments:
-    n_tps, n_segments_init = tail_x.shape[0], tail_x.shape[1]
-    tail_x_interp, tail_y_interp = np.zeros((2, n_tps, n_segments + 1)) * np.nan
-    # tail_y_interp = np.zeros((T, n_segments + 1)) * np.nan
-    for t in range(n_tps):
-        try:
-            points = np.array(
-                [tail_x[t, :], tail_y[t, :]]
-            ).T  # a (nbre_points x nbre_dim) array
-            is_nan = np.any(np.isnan(points))
+        if self.n_segments < 2:
+            raise ValueError("There should be more than 3 keypoints.")
 
-            if is_nan == False:
-                id_first_nan = points.shape[0]
-                N_seg = n_segments + 1
+    def interpolate(self) -> Tuple[NDArray[(Any,),float], NDArray[(Any,),float]]:
+        """Interpolate via cubis or linear using tail constructor.
 
-            else:
-                id_first_nan = np.where(np.any(np.isnan(points), axis=1))[0][0]
-                N_seg = int(np.round(id_first_nan / n_segments_init * (n_segments + 1)))
+        Returns:
+            Tuple: Interpolated x and y keypoints
+        """
+        n_tps, n_segments_init = self.tail_x.shape[0], self.tail_x.shape[1]
+        tail_x_interp = np.zeros((n_tps, self.n_segments + 1)) * np.nan
+        tail_y_interp = np.zeros((n_tps, self.n_segments + 1)) * np.nan
 
-            alpha = np.linspace(0, 1, N_seg)
-            # Linear length along the line:
-            distance = np.cumsum(
-                np.sqrt(np.sum(np.diff(points[:id_first_nan, :], axis=0) ** 2, axis=1))
-            )
-            distance = np.insert(distance, 0, 0) / distance[-1]
-            if len(distance) > 3:
-                interpolator = interp1d(
-                    distance, points[:id_first_nan, :], kind="cubic", axis=0
-                )
-            else:
-                interpolator = interp1d(
-                    distance, points[:id_first_nan, :], kind="linear", axis=0
-                )
+        for tp in range(n_tps):
+            try:
+                points = np.array([self.tail_x[tp, :], self.tail_y[tp, :]]).T
+                is_nan = np.any(np.isnan(points))
 
-            curve = interpolator(alpha)
+                if not is_nan:
+                    id_first_nan = points.shape[0]
+                    n_segments = self.n_segments + 1
+                else:
+                    id_first_nan = np.where(np.any(np.isnan(points), axis=1))[0][0]
+                    n_segments = int(np.round(id_first_nan / n_segments_init * (self.n_segments + 1)))
 
-            tail_x_interp[t, :N_seg] = curve[:, 0]
-            tail_y_interp[t, :N_seg] = curve[:, 1]
-        except:
-            pass
+                alpha = np.linspace(0, 1, n_segments)
+                distance = np.cumsum(np.sqrt(np.sum(np.diff(points[:id_first_nan, :], axis=0) ** 2, axis=1)))
+                distance = np.insert(distance, 0, 0) / distance[-1]
 
-    return tail_x_interp, tail_y_interp
+                if len(distance) > 3:
+                    interpolator = interp1d(distance, points[:id_first_nan, :], kind="cubic", axis=0)
+                else:
+                    interpolator = interp1d(distance, points[:id_first_nan, :], kind="linear", axis=0)
+
+                curve = interpolator(alpha)
+
+                tail_x_interp[tp, :self.n_segments] = curve[:, 0]
+                tail_y_interp[tp, :self.n_segments] = curve[:, 1]
+            except:
+                print(f"Keypoint interpolation failed tp: {tp}")
+
+        return tail_x_interp, tail_y_interp
 
 
 def convert_tail_angle_to_keypoints(
@@ -157,7 +157,8 @@ def compute_angles_from_keypoints(body_x, body_y, tail_x, tail_y):
         tuple: A tuple containing the tail angles (tail_angle) and the body angle (body_angle).
 
     Raises:
-        ValueError: If tail_x and tail_y do not have the expected shape or if the time axis is different.
+        ValueError: If tail_x and tail_y do not have the expected shape or if the time axis 
+        is different.
     """
     N_keypoints = tail_x.shape[1]
     if tail_x.shape[1] != tail_y.shape[1]:

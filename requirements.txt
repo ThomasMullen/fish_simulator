@@ -1,4 +1,5 @@
 numpy
+nptyping
 Pillow
 matplotlib
 scipy
