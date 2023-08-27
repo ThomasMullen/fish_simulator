@@ -8,8 +8,8 @@ from PIL import Image
 
 
 class ImageLoader:
-    """Self contained loader that returns the tail segments and head images.
-    """
+    """Self contained loader that returns the tail segments and head images."""
+
     def __init__(self, seg_dir=None) -> None:
         self.seg_dir = (
             Path(os.getcwd(), "src", "zf_animator_tsm", "template_img", "segs")
@@ -46,8 +46,5 @@ class ImageLoader:
         Returns:
             Dict: keys 'head' and 'segs' composing tail.
         """
-        zf_image = {
-            "head": self.load_head(), 
-            "segs": self.load_segments()
-            }
+        zf_image = {"head": self.load_head(), "segs": self.load_segments()}
         return zf_image
