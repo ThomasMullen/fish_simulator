@@ -157,7 +157,7 @@ def interpolate_tail_angle(
     # Convert to keypoints
     body_x, body_y, body_angle = np.zeros((3, n_tps))
     tail_x, tail_y = convert_tail_angle_to_keypoints(
-        body_x, body_y, body_angle, tail_angle, body_to_tail_mm=0.5, tail_size_mm=0.32
+        body_x, body_y, body_angle, tail_angle
     )
 
     # Interpolate
