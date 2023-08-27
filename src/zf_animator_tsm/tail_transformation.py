@@ -82,127 +82,60 @@ class TailInterpolator:
         return tail_x_interp, tail_y_interp
 
 
-class TailAngleConverter:
-    """Converts tail angles along tail to key x-y positions
+def convert_tail_angle_to_keypoints(
+    body_xy: NDArray,
+    body_angle: NDArray,
+    tail_angle: NDArray,
+    body_to_tail_mm: float = 0.5,
+    tail_to_tail_mm: float = 0.32,
+) -> Tuple[NDArray, NDArray]:
+    """Convert tail angle segments to x-y positions
+
+    Args:
+        body_xy (NDArray): 2D array of body xy-position of length time,
+        shape: [time x 2].
+        body_angle (NDArray): 1D array of body angle of length time
+        tail_angle (NDArray): 2D array tail angle data, shape (time x n_segments)
+        body_to_tail_mm (float, optional): Separation between tail and body point. Defaults to 0.5.
+        tail_to_tail_mm (float, optional): Separation between each measured tail angle. 
+        Defaults to 0.32.
 
     Raises:
-        ValueError: Ensures arrays have same time length
+        ValueError: time length of body x-pos array different to tail angle time length, or
+        time length of body y-pos array different to tail angle time length, or
+        time length of body angle array different to tail angle time length.
+        
+    Notes:
+        Shape should be body_xy = np.zeros((n_tps,2)); body_angle = np.zeros(n_tps)
 
     Returns:
-        _type_: the x-y positions through time for each segment
+        Tuple[NDArray, NDArray]: 2D array converted measured tail angle x-position through time, and
+        y-position through time, both of shape (time x n_segments)
     """
-    @staticmethod
-    def convert_to_keypoints(
-        body_x: NDArray,
-        body_y: NDArray,
-        body_angle: NDArray,
-        tail_angle: NDArray,
-        body_to_tail_mm: float = 0.5,
-        tail_to_tail_mm: float = 0.32,
-    ) -> Tuple[NDArray, NDArray]:
-        """Convert tail angle segments to x-y positions
+    n_tps, n_tail_segments = tail_angle.shape
+    if (body_xy.shape[0] != n_tps) or (len(body_angle) != n_tps):
+        raise ValueError("incompatible dimensions")
 
-        Args:
-            body_x (NDArray): 1D array of body x-position of length time
-            body_y (NDArray): 1D array of body y-position of length time
-            body_angle (NDArray): 1D array of body angle of length time
-            tail_angle (NDArray): 2D array tail angle data, shape (time x n_segments)
-            body_to_tail_mm (float, optional): Separation between tail and body point. Defaults to 0.5.
-            tail_to_tail_mm (float, optional): Separation between each measured tail angle. 
-            Defaults to 0.32.
+    tail_xy = np.zeros((n_tps, n_tail_segments+1, 2))
 
-        Raises:
-            ValueError: time length of body x-pos array different to tail angle time length, or
-            time length of body y-pos array different to tail angle time length, or
-            time length of body angle array different to tail angle time length.
+    for i_tp in range(n_tps):
+        # x, y = body_x[t], body_y[t]
+        # head_pos = np.array([body_xy[i_tp]])
+        body_vect = np.array([np.cos(body_angle[i_tp]), np.sin(body_angle[i_tp])])
 
-        Returns:
-            Tuple[NDArray, NDArray]: 2D array converted measured tail angle x-position through time, and
-            y-position through time, both of shape (time x n_segments)
-        """
-        n_tps, n_tail_segments = tail_angle.shape
-        if (len(body_x) != n_tps) or (len(body_y) != n_tps) or (len(body_angle) != n_tps):
-            raise ValueError("incompatible dimensions")
+        swim_bladder = body_xy[i_tp] - body_vect*body_to_tail_mm
 
-        n_segments = n_tail_segments + 1
-        tail_x, tail_y = np.zeros((2, n_tps, n_segments))
+        tail_xy[i_tp, 0] = swim_bladder
+        tail_angle_abs = tail_angle[i_tp, :] + (body_angle[i_tp] + np.pi)
+        tail_pos = np.copy(swim_bladder)
+        for j_seg in range(n_tail_segments):
+            tail_vect = np.array(
+                [np.cos(tail_angle_abs[j_seg]), np.sin(tail_angle_abs[j_seg])]
+            )
+            tail_pos += tail_to_tail_mm * tail_vect
+            tail_xy[i_tp, j_seg + 1] = tail_pos
 
-        for i_tp in range(n_tps):
-            head_pos = np.array([body_x[i_tp], body_y[i_tp]])
-            body_vect = np.array([np.cos(body_angle[i_tp]), np.sin(body_angle[i_tp])])
-
-            swim_bladder = head_pos - body_vect * body_to_tail_mm
-
-            tail_x[i_tp, 0] = swim_bladder[0]
-            tail_y[i_tp, 0] = swim_bladder[1]
-            tail_angle_abs = tail_angle[i_tp, :] + (body_angle[i_tp] + np.pi)
-            tail_pos = np.copy(swim_bladder)
-            for j_seg in range(n_tail_segments):
-                tail_vect = np.array(
-                    [np.cos(tail_angle_abs[j_seg]), np.sin(tail_angle_abs[j_seg])]
-                )
-                tail_pos += tail_to_tail_mm * tail_vect
-                tail_x[i_tp, j_seg + 1] = tail_pos[0]
-                tail_y[i_tp, j_seg + 1] = tail_pos[1]
-
-        return tail_x, tail_y
-
-
-# def convert_tail_angle_to_keypoints(
-#     body_x: NDArray,
-#     body_y: NDArray,
-#     body_angle: NDArray,
-#     tail_angle: NDArray,
-#     body_to_tail_mm: float = 0.5,
-#     tail_to_tail_mm: float = 0.32,
-# ) -> Tuple[NDArray, NDArray]:
-#     """Convert tail angle segments to x-y positions
-
-#     Args:
-#         body_x (NDArray): 1D array of body x-position of length time
-#         body_y (NDArray): 1D array of body y-position of length time
-#         body_angle (NDArray): 1D array of body angle of length time
-#         tail_angle (NDArray): 2D array tail angle data, shape (time x n_segments)
-#         body_to_tail_mm (float, optional): Separation between tail and body point. Defaults to 0.5.
-#         tail_to_tail_mm (float, optional): Separation between each measured tail angle. 
-#         Defaults to 0.32.
-
-#     Raises:
-#         ValueError: time length of body x-pos array different to tail angle time length, or
-#         time length of body y-pos array different to tail angle time length, or
-#         time length of body angle array different to tail angle time length.
-
-#     Returns:
-#         Tuple[NDArray, NDArray]: 2D array converted measured tail angle x-position through time, and
-#         y-position through time, both of shape (time x n_segments)
-#     """
-#     n_tps, n_tail_segments = tail_angle.shape
-#     if (len(body_x) != n_tps) or (len(body_y) != n_tps) or (len(body_angle) != n_tps):
-#         raise ValueError("incompatible dimensions")
-
-#     n_segments = n_tail_segments + 1
-#     tail_x, tail_y = np.zeros((2, n_tps, n_segments))
-
-#     for i_tp in range(n_tps):
-#         # x, y = body_x[t], body_y[t]
-#         head_pos = np.array([body_x[i_tp], body_y[i_tp]])
-#         body_vect = np.array([np.cos(body_angle[i_tp]), np.sin(body_angle[i_tp])])
-
-#         swim_bladder = head_pos - body_vect * body_to_tail_mm
-
-#         tail_x[i_tp, 0] = swim_bladder[0]
-#         tail_y[i_tp, 0] = swim_bladder[1]
-#         tail_angle_abs = tail_angle[i_tp, :] + (body_angle[i_tp] + np.pi)
-#         tail_pos = np.copy(swim_bladder)
-#         for j_seg in range(n_tail_segments):
-#             tail_vect = np.array(
-#                 [np.cos(tail_angle_abs[j_seg]), np.sin(tail_angle_abs[j_seg])]
-#             )
-#             tail_pos += tail_to_tail_mm * tail_vect
-#             tail_x[i_tp, j_seg + 1] = tail_pos[0]
-#             tail_y[i_tp, j_seg + 1] = tail_pos[1]
-
-#     return tail_x, tail_y
+    return np.squeeze(np.split(tail_xy[:, :],2,axis=2))
 
 
 def interpolate_tail_angle(
@@ -222,9 +155,10 @@ def interpolate_tail_angle(
     """
     n_tps = tail_angle.shape[0]
     # Convert to keypoints
-    body_x, body_y, body_angle = np.zeros((3, n_tps))
+    body_xy = np.zeros((n_tps,2))
+    body_angle = np.zeros(n_tps)
     tail_x, tail_y = convert_tail_angle_to_keypoints(
-        body_x, body_y, body_angle, tail_angle
+        body_xy, body_angle, tail_angle
     )
 
     # Interpolate
@@ -233,7 +167,7 @@ def interpolate_tail_angle(
 
     # Compute tail angle
     tail_angle_interp, body_angle_interp = compute_angles_from_keypoints(
-        body_x, body_y, tail_x_interp, tail_y_interp
+        body_xy[:,0], body_xy[:1], tail_x_interp, tail_y_interp
     )
 
     return tail_angle_interp, body_angle_interp
