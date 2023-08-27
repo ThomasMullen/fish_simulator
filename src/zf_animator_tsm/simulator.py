@@ -1,5 +1,4 @@
-"""Module pull all functionality and generates the images and videos
-"""
+"""Module pull all functionality and generates the images and videos"""
 import os
 import itertools
 from pathlib import Path
@@ -9,13 +8,13 @@ from numpy.typing import NDArray
 import matplotlib.pyplot as plt
 from matplotlib import transforms
 
-from image_loading import ImageLoader
 from tail_transformation import (
     interpolate_keypoints,
     compute_angles_from_keypoints,
     convert_tail_angle_to_keypoints,
     KeypointStruct,
 )
+from image_loading import ImageLoader
 
 
 def make_simulation(

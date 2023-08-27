@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zf_animator_tsnm"
+version = "0.0.1"
+authors = [
+  { name="Thomas Soares Mullen", email="thomas.mullen@fchampalimaud.org" },
+]
+description = "Simulate zebrafish swim from tail angle tracking data"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/ThomasMullen/zf_animator_tsm"
+"Bug Tracker" = "https://github.com/ThomasMullen/zf_animator_tsm/issues"
+
+[tool.setuptools_scm]
