@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 from matplotlib import transforms
 
 
-
 from src.zf_animator_tsm.tail_transformation import (
     interpolate_keypoints,
     compute_angles_from_keypoints,
@@ -56,9 +55,9 @@ def make_simulation(
     tps = data.shape[0]
 
     # load image data
-    # TODO: Fix the conflict of root path with test and this location for default dir
-    # img_loader = ImageLoader()
-    img_loader = ImageLoader("/Users/tom/VSCode/zf_animator_tsm/src/zf_animator_tsm/template_img/segs")
+    img_loader = ImageLoader()
+    # img_loader = ImageLoader("/Users/tom/VSCode/zf_animator_tsm/src/zf_animator_tsm/\
+    #                          template_img/segs")
     head = img_loader.load_head()
     segs = img_loader.load_segments()
 
@@ -93,18 +92,29 @@ def make_simulation(
     )
 
     # image hyper parameters
-    head_y_len, head_x_len = head.shape[:2]
-    y_offset = 10
-    scale_fac = 1.0
+    img_dims = {
+        "head_y_len": head.shape[0],
+        "head_x_len": head.shape[1],
+        "head_to_tail_y_offset": 10,
+        "img_sf": 1.0,
+    }
+    # head_y_len, head_x_len = head.shape[:2]
+    # y_offset = 10
+    # scale_fac = 1.0
 
     for i_tp in trange(body_ang.size):
-        cum_x_len = head_x_len
+        cum_x_len = img_dims["head_x_len"]
         # plot the head
         fig, ax_tail = plt.subplots(dpi=400)
-        rot = transforms.Affine2D().rotate(np.mod(body_ang[i_tp], 2 * np.pi))
+        # rot = transforms.Affine2D().rotate(np.mod(body_ang[i_tp], 2 * np.pi))
         ax_tail.imshow(
             head,
-            extent=[0, head_x_len, -head_y_len // 2, head_y_len // 2],
+            extent=[
+                0,
+                img_dims["head_x_len"],
+                -img_dims["head_y_len"] // 2,
+                img_dims["head_y_len"] // 2,
+            ],
             # transform=rot  + ax_tail.transData,
             transform=ax_tail.transData,
             alpha=0.8,
@@ -113,12 +123,17 @@ def make_simulation(
         for i, seg in enumerate(segs):
             # add a single segment to scale
             seg_y_len, seg_x_len = seg.shape[:2]
-            rot = transforms.Affine2D().rotate(np.mod(intp_angs[i_tp, i], 2 * np.pi))
-            trs = transforms.Affine2D().translate(tx=cum_x_len, ty=y_offset)
+            # trs = transforms.Affine2D().translate(tx=cum_x_len, ty=img_dims['y_offset'])
+            # rot = transforms.Affine2D().rotate(np.mod(intp_angs[i_tp, i], 2 * np.pi))
             ax_tail.imshow(
                 seg,
                 extent=[0, seg_x_len, -seg_y_len // 2, seg_y_len // 2],
-                transform=trs + rot + ax_tail.transData,
+                # transform=trs + rot + ax_tail.transData,
+                transform=transforms.Affine2D().translate(# Local translation
+                    tx=cum_x_len, ty=img_dims["y_offset"]
+                )
+                + transforms.Affine2D().rotate(np.mod(intp_angs[i_tp, i], 2 * np.pi))# Local rotation
+                + ax_tail.transData,# Global transform
                 alpha=0.8,
             )
             cum_x_len += seg_x_len
@@ -129,7 +144,7 @@ def make_simulation(
             xlim=[0, cum_x_len + 20],
             # ylim=[-head_y_len//2, head_y_len//2],
             # ylim=[-head_y_len*sf, head_y_len*sf],
-            ylim=[(-cum_x_len) * scale_fac, cum_x_len * scale_fac],
+            ylim=[(-cum_x_len) * img_dims['scale_fac'], cum_x_len * img_dims['scale_fac']],
             # ylim=[(-cum_x_len+head_x_len)*sf, cum_x_len-head_x_len*sf],
         )
 
