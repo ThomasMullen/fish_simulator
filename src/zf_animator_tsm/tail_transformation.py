@@ -116,8 +116,8 @@ def convert_tail_angle_to_keypoints(
     tail_x, tail_y = np.zeros((2, n_tps, n_segments))
 
     for t in range(n_tps):
-        x, y = body_x[t], body_y[t]
-        head_pos = np.array([x, y])
+        # x, y = body_x[t], body_y[t]
+        head_pos = np.array([body_x[t], body_y[t]])
         body_vect = np.array([np.cos(body_angle[t]), np.sin(body_angle[t])])
 
         swim_bladder = head_pos - body_vect * body_to_tail_mm
@@ -170,21 +170,21 @@ def interpolate_tail_angle(
     return tail_angle_interp, body_angle_interp
 
 
-def compute_angle_between_vectors(v1, v2):
+def compute_angle_between_vectors(vec_1, vec_2):
     """
     Computes the angle between two vectors.
 
     Args:
-        v1 (ndarray): First set of vectors with shape (num_vectors, num_dimensions).
-        v2 (ndarray): Second set of vectors with shape (num_vectors, num_dimensions).
+        vec_1 (ndarray): First set of vectors with shape (num_vectors, num_dimensions).
+        vec_2 (ndarray): Second set of vectors with shape (num_vectors, num_dimensions).
 
     Returns:
         ndarray: Array of angles between the vectors.
     """
-    dot_product = np.einsum("ij,ij->i", v1, v2)
-    norms_product = np.linalg.norm(v1, axis=1) * np.linalg.norm(v2, axis=1)
+    dot_product = np.einsum("ij,ij->i", vec_1, vec_2)
+    # norms_product = np.linalg.norm(vec_1, axis=1) * np.linalg.norm(vec_2, axis=1)
     cos_angle = dot_product
-    sin_angle = np.cross(v1, v2)
+    sin_angle = np.cross(vec_1, vec_2)
     angle = np.arctan2(sin_angle, cos_angle)
 
     return angle
@@ -212,7 +212,7 @@ def compute_angles_from_keypoints(
     if not (tail_x.shape == tail_y.shape):
         raise ValueError("tail_x and tail_y must have same dimensions")
 
-    T = len(body_x)
+    n_tps = body_x.shape[0]
     vector_tail_segment = np.concatenate(
         (
             np.diff(tail_x, axis=1)[:, :, np.newaxis],
@@ -225,7 +225,7 @@ def compute_angles_from_keypoints(
     body_vector = -start_vector
     body_angle = np.arctan2(body_vector[:, 1], body_vector[:, 0])
     body_angle[~np.isnan(body_angle)] = np.unwrap(body_angle[~np.isnan(body_angle)])
-    relative_angle = np.zeros((T, n_keypoints - 1))
+    relative_angle = np.zeros((n_tps, n_keypoints - 1))
     print(vector_tail_segment.shape)
     for k_pnt in range(n_keypoints - 1):
         relative_angle[:, k_pnt] = compute_angle_between_vectors(
