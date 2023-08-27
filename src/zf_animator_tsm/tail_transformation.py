@@ -78,7 +78,6 @@ class TailInterpolator:
             except Exception as e:
                 print(f"Error {e} occurred.")
                 print(f"Keypoint interpolation failed tp: {i_tp}")
-                raise RuntimeError
 
         return tail_x_interp, tail_y_interp
 
