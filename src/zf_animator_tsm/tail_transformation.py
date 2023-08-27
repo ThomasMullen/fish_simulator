@@ -7,6 +7,7 @@ import numpy as np
 from scipy.interpolate import interp1d
 from numpy.typing import NDArray
 
+
 @dataclass
 class KeypointStruct:
     """Structure for key x-y- points timeseries along tail (Each 2D [TxN]),
@@ -15,10 +16,11 @@ class KeypointStruct:
     Raises:
         ValueError: Insufficient number of keypoints to interpolate.
     """
+
     tail_x: NDArray
     tail_y: NDArray
     n_segments: int
-    
+
     def __post_init__(self):
         if self.n_segments < 2:
             raise ValueError("There should be more than 3 keypoints.")
@@ -31,13 +33,18 @@ def interpolate_keypoints(key_pnt_struc: KeypointStruct) -> Tuple[NDArray, NDArr
     Returns:
         Tuple: Interpolated x and y keypoints
     """
-    n_tps, n_segments_init = key_pnt_struc.tail_x.shape[0], key_pnt_struc.tail_x.shape[1]
+    n_tps, n_segments_init = (
+        key_pnt_struc.tail_x.shape[0],
+        key_pnt_struc.tail_x.shape[1],
+    )
     tail_x_interp = np.zeros((n_tps, key_pnt_struc.n_segments + 1)) * np.nan
     tail_y_interp = np.zeros((n_tps, key_pnt_struc.n_segments + 1)) * np.nan
 
     for i_tp in range(n_tps):
         # try:
-        points = np.array([key_pnt_struc.tail_x[i_tp, :], key_pnt_struc.tail_y[i_tp, :]]).T
+        points = np.array(
+            [key_pnt_struc.tail_x[i_tp, :], key_pnt_struc.tail_y[i_tp, :]]
+        ).T
         is_nan = np.any(np.isnan(points))
 
         if not is_nan:
@@ -46,14 +53,14 @@ def interpolate_keypoints(key_pnt_struc: KeypointStruct) -> Tuple[NDArray, NDArr
         else:
             id_first_nan = np.where(np.any(np.isnan(points), axis=1))[0][0]
             n_segments = int(
-                np.round(id_first_nan / n_segments_init * (key_pnt_struc.n_segments + 1))
+                np.round(
+                    id_first_nan / n_segments_init * (key_pnt_struc.n_segments + 1)
+                )
             )
 
         alpha = np.linspace(0, 1, n_segments)
         distance = np.cumsum(
-            np.sqrt(
-                np.sum(np.diff(points[:id_first_nan, :], axis=0) ** 2, axis=1)
-            )
+            np.sqrt(np.sum(np.diff(points[:id_first_nan, :], axis=0) ** 2, axis=1))
         )
         distance = np.insert(distance, 0, 0) / distance[-1]
 
@@ -92,14 +99,14 @@ def convert_tail_angle_to_keypoints(
         body_angle (NDArray): 1D array of body angle of length time
         tail_angle (NDArray): 2D array tail angle data, shape (time x n_segments)
         body_to_tail_mm (float, optional): Separation between tail and body point. Defaults to 0.5.
-        tail_to_tail_mm (float, optional): Separation between each measured tail angle. 
+        tail_to_tail_mm (float, optional): Separation between each measured tail angle.
         Defaults to 0.32.
 
     Raises:
         ValueError: time length of body x-pos array different to tail angle time length, or
         time length of body y-pos array different to tail angle time length, or
         time length of body angle array different to tail angle time length.
-        
+
     Notes:
         Shape should be body_xy = np.zeros((n_tps,2)); body_angle = np.zeros(n_tps)
 
@@ -111,14 +118,14 @@ def convert_tail_angle_to_keypoints(
     if (body_xy.shape[0] != n_tps) or (len(body_angle) != n_tps):
         raise ValueError("incompatible dimensions")
 
-    tail_xy = np.zeros((n_tps, n_tail_segments+1, 2))
+    tail_xy = np.zeros((n_tps, n_tail_segments + 1, 2))
 
     for i_tp in range(n_tps):
         # x, y = body_x[t], body_y[t]
         # head_pos = np.array([body_xy[i_tp]])
         body_vect = np.array([np.cos(body_angle[i_tp]), np.sin(body_angle[i_tp])])
 
-        swim_bladder = body_xy[i_tp] - body_vect*body_to_tail_mm
+        swim_bladder = body_xy[i_tp] - body_vect * body_to_tail_mm
 
         tail_xy[i_tp, 0] = swim_bladder
         tail_angle_abs = tail_angle[i_tp, :] + (body_angle[i_tp] + np.pi)
@@ -130,7 +137,7 @@ def convert_tail_angle_to_keypoints(
             tail_pos += tail_to_tail_mm * tail_vect
             tail_xy[i_tp, j_seg + 1] = tail_pos
 
-    return np.squeeze(np.split(tail_xy[:, :],2,axis=2))
+    return np.squeeze(np.split(tail_xy[:, :], 2, axis=2))
 
 
 def interpolate_tail_angle(
@@ -141,7 +148,7 @@ def interpolate_tail_angle(
 
     Args:
         tail_angle (NDArray): 2D array in shape (time x n_segments)
-        n_segments (int, optional): Number of segments want to interpolate along tail. 
+        n_segments (int, optional): Number of segments want to interpolate along tail.
         Defaults to 10.
 
     Returns:
@@ -150,19 +157,18 @@ def interpolate_tail_angle(
     """
     n_tps = tail_angle.shape[0]
     # Convert to keypoints
-    body_xy = np.zeros((n_tps,2))
+    body_xy = np.zeros((n_tps, 2))
     body_angle = np.zeros(n_tps)
-    tail_x, tail_y = convert_tail_angle_to_keypoints(
-        body_xy, body_angle, tail_angle
-    )
+    tail_x, tail_y = convert_tail_angle_to_keypoints(body_xy, body_angle, tail_angle)
 
     # Interpolate
-    keypoint_interpolator = interpolate_keypoints(KeypointStruct(tail_x, tail_y, n_segments))
-    tail_x_interp, tail_y_interp = keypoint_interpolator.interpolate()
+    tail_x_interp, tail_y_interp = interpolate_keypoints(
+        KeypointStruct(tail_x, tail_y, n_segments)
+    )
 
     # Compute tail angle
     tail_angle_interp, body_angle_interp = compute_angles_from_keypoints(
-        body_xy[:,0], body_xy[:1], tail_x_interp, tail_y_interp
+        body_xy[:, 0], body_xy[:1], tail_x_interp, tail_y_interp
     )
 
     return tail_angle_interp, body_angle_interp
