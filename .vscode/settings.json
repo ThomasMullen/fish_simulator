@@ -8,7 +8,7 @@
     ],
     "python.testing.pytestEnabled": false,
     "python.testing.unittestEnabled": true,
-    "python.defaultInterpreterPath": "/Users/tom/VSCode/zf_animator_tsm/venv/bin/python3",
+    "python.defaultInterpreterPath": "zf_animator_tsm/venv/bin/python3",
     "python.pythonPath": "venv/bin/python",
     "python.linting.pylintPath": "venv/bin/pylint"
 }
