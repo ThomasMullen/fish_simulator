@@ -2,6 +2,7 @@
 import os
 import itertools
 from pathlib import Path
+import tempfile
 from tqdm import trange
 import numpy as np
 from numpy.typing import NDArray
@@ -43,8 +44,6 @@ def make_simulation(
     """
     assert data.ndim == 2, "Need to be 2D"
     if f_path is None:
-        import tempfile
-
         f_path = tempfile.mkdtemp()
         print(f"Tmp dir: {f_path}")
     else:
