@@ -3,6 +3,7 @@ import os
 import itertools
 from pathlib import Path
 import tempfile
+from typing import List, Dict, Union
 from tqdm import trange
 import numpy as np
 from numpy.typing import NDArray
@@ -21,10 +22,8 @@ from src.zf_animator_tsm.image_loading import ImageLoader
 
 def make_simulation(
     data: NDArray,
-    vid_fname: str,
     upsample: int = None,
     f_path: str = None,
-    keep_pngs: bool = False,
 ):
     """simulate fish dynamics on tail image
 
@@ -102,64 +101,148 @@ def make_simulation(
     # scale_fac = 1.0
 
     for i_tp in trange(body_ang.size):
-        cum_x_len = img_dims["head_x_len"]
-        # plot the head
-        fig, ax_tail = plt.subplots(dpi=400)
-        # rot = transforms.Affine2D().rotate(np.mod(body_ang[i_tp], 2 * np.pi))
+        plot_image_and_segments(
+            interpolated_angles=intp_angs, 
+            head_img=head, 
+            seg_imgs=segs, 
+            img_dims=img_dims,
+            f_path=f_path,
+            i_cntr=i_tp
+            )
+        
+        
+        # cum_x_len = img_dims["head_x_len"]
+        # # plot the head
+        # fig, ax_tail = plt.subplots(dpi=400)
+        # # rot = transforms.Affine2D().rotate(np.mod(body_ang[i_tp], 2 * np.pi))
+        # ax_tail.imshow(
+        #     head,
+        #     extent=[
+        #         0,
+        #         img_dims["head_x_len"],
+        #         -img_dims["head_y_len"] // 2,
+        #         img_dims["head_y_len"] // 2,
+        #     ],
+        #     # transform=rot  + ax_tail.transData,
+        #     transform=ax_tail.transData,
+        #     alpha=0.8,
+        # )
+        # # plot segments
+        # for i, seg in enumerate(segs):
+        #     # add a single segment to scale
+        #     seg_y_len, seg_x_len = seg.shape[:2]
+        #     # trs = transforms.Affine2D().translate(tx=cum_x_len, ty=img_dims['y_offset'])
+        #     # rot = transforms.Affine2D().rotate(np.mod(intp_angs[i_tp, i], 2 * np.pi))
+        #     ax_tail.imshow(
+        #         seg,
+        #         extent=[0, seg_x_len, -seg_y_len // 2, seg_y_len // 2],
+        #         # transform=trs + rot + ax_tail.transData,
+        #         transform=transforms.Affine2D().translate(# Local translation
+        #             tx=cum_x_len, ty=img_dims["y_offset"]
+        #         )
+        #         + transforms.Affine2D().rotate(np.mod(intp_angs[i_tp, i], 2 * np.pi))# Local rotation
+        #         + ax_tail.transData,# Global transform
+        #         alpha=0.8,
+        #     )
+        #     cum_x_len += seg_x_len
+        # ax_tail.spines[["left", "right", "top", "bottom"]].set_visible(False)
+        # ax_tail.set(
+        #     yticks=[],
+        #     xticks=[],
+        #     xlim=[0, cum_x_len + 20],
+        #     # ylim=[-head_y_len//2, head_y_len//2],
+        #     # ylim=[-head_y_len*sf, head_y_len*sf],
+        #     ylim=[(-cum_x_len) * img_dims['scale_fac'], cum_x_len * img_dims['scale_fac']],
+        #     # ylim=[(-cum_x_len+head_x_len)*sf, cum_x_len-head_x_len*sf],
+        # )
+
+        # fig.savefig(f"{f_path}/{i_tp:03}.png", dpi=150)
+        # plt.close(fig)
+
+
+
+
+def plot_image_and_segments(
+        interpolated_angles:NDArray,
+        head_img:NDArray, 
+        seg_imgs:List[NDArray], 
+        img_dims:Dict[int,float],
+        f_path:str,
+        i_cntr:int
+    ) -> None:
+    """Plot the head an tail warped by interpolated angles
+
+    Args:
+        interpolated_angles (NDArray): Interpolated tail angle to transform the img
+        head_img (NDArray): image of fish head
+        seg_imgs (List[NDArray]): list of image segmentes
+        img_dims (Dict[Union[int,float]]): image parameters of dimensions and scale factors
+        i_cntr (int): iterator refering to timepoint of image posture.
+    """
+    fig, ax_tail = plt.subplots(dpi=400)
+    # plot the head
+    ax_tail.imshow(
+        head_img,
+        extent=[
+            0,
+            img_dims["head_x_len"],
+            -img_dims["head_y_len"] // 2,
+            img_dims["head_y_len"] // 2,
+        ],
+        # transform=rot  + ax_tail.transData,
+        transform=ax_tail.transData,
+        alpha=0.8,
+    )
+    # plot segments
+    cum_x_shift = img_dims["head_x_len"]
+    for i, seg in enumerate(seg_imgs):
+        # add a single segment to scale
+        seg_y_len, seg_x_len = seg.shape[:2]
         ax_tail.imshow(
-            head,
-            extent=[
-                0,
-                img_dims["head_x_len"],
-                -img_dims["head_y_len"] // 2,
-                img_dims["head_y_len"] // 2,
-            ],
-            # transform=rot  + ax_tail.transData,
-            transform=ax_tail.transData,
+            seg,
+            extent=[0, seg_x_len, -seg_y_len // 2, seg_y_len // 2],
+            # transform=trs + rot + ax_tail.transData,
+            transform=transforms.Affine2D().translate(# Local translation
+                tx=cum_x_shift, ty=img_dims["head_to_tail_y_offset"]
+            )
+            + transforms.Affine2D().rotate(np.mod(interpolated_angles[i_cntr, i], 2 * np.pi))# Local rotation
+            + ax_tail.transData,# Global transform
             alpha=0.8,
         )
-        # plot segments
-        for i, seg in enumerate(segs):
-            # add a single segment to scale
-            seg_y_len, seg_x_len = seg.shape[:2]
-            # trs = transforms.Affine2D().translate(tx=cum_x_len, ty=img_dims['y_offset'])
-            # rot = transforms.Affine2D().rotate(np.mod(intp_angs[i_tp, i], 2 * np.pi))
-            ax_tail.imshow(
-                seg,
-                extent=[0, seg_x_len, -seg_y_len // 2, seg_y_len // 2],
-                # transform=trs + rot + ax_tail.transData,
-                transform=transforms.Affine2D().translate(# Local translation
-                    tx=cum_x_len, ty=img_dims["y_offset"]
-                )
-                + transforms.Affine2D().rotate(np.mod(intp_angs[i_tp, i], 2 * np.pi))# Local rotation
-                + ax_tail.transData,# Global transform
-                alpha=0.8,
-            )
-            cum_x_len += seg_x_len
+        cum_x_shift += seg_x_len
+        # image format
         ax_tail.spines[["left", "right", "top", "bottom"]].set_visible(False)
         ax_tail.set(
             yticks=[],
             xticks=[],
-            xlim=[0, cum_x_len + 20],
-            # ylim=[-head_y_len//2, head_y_len//2],
-            # ylim=[-head_y_len*sf, head_y_len*sf],
-            ylim=[(-cum_x_len) * img_dims['scale_fac'], cum_x_len * img_dims['scale_fac']],
-            # ylim=[(-cum_x_len+head_x_len)*sf, cum_x_len-head_x_len*sf],
+            xlim=[0, cum_x_shift + 20],
+            ylim=[(-cum_x_shift) * img_dims['img_sf'], cum_x_shift * img_dims['img_sf']],
         )
-
-        fig.savefig(f"{f_path}/{i_tp:03}.png", dpi=150)
+        fig.savefig(f"{f_path}/{i_cntr:03}.png", dpi=150)
         plt.close(fig)
+    return
+    
+        
+def make_video(png_dir:str, vid_fname:str, keep_pngs:bool=True)-> None:
+    """converts the save png figs to mp4 with ffmpeg
 
+    Args:
+        png_dir (str): directory with numbered pngs
+        vid_fname (str): video filepath
+        keep_pngs (bool, optional): delete dir with png after video saved.
+        Defaults to True.
+    """
     if os.path.exists(vid_fname):
         os.remove(vid_fname)
 
     # make video
-    cmd = f"ffmpeg -r 35 -f image2 -i {f_path}/%03d.png -vcodec libx264 \
+    cmd = f"ffmpeg -r 35 -f image2 -i {png_dir}/%03d.png -vcodec libx264 \
     -crf 25 -pix_fmt yuv420p {vid_fname}"
     os.system(cmd)
     print(f"Saving video to: {vid_fname}")
 
     # TODO: Make sure permitted to delete
     if not keep_pngs:
-        os.remove(f_path)
-        print(f"delete: {f_path} folder")
+        os.remove(png_dir)
+        print(f"delete: {png_dir} folder")
+    return
