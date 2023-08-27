@@ -112,9 +112,8 @@ def interpolate_tail_angle(tail_angle, n_segments=10):
     )
 
     # Interpolate
-    tail_x_interp, tail_y_interp = interpolate_tail_keypoint(
-        tail_x, tail_y, n_segments=n_segments
-    )
+    keypoint_interpolator = TailInterpolator(tail_x, tail_y, n_segments=n_segments)
+    tail_x_interp, tail_y_interp = keypoint_interpolator.interpolate()
 
     # Compute tail angle
     tail_angle_interp, body_angle_interp = compute_angles_from_keypoints(
