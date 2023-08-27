@@ -1,3 +1,6 @@
+"""Module that contains transformations from tail angle
+to x-y coorindates. Additionally, with interpolation functions
+"""
 import numpy as np
 from scipy.interpolate import interp1d
 
@@ -7,25 +10,29 @@ def interpolate_tail_keypoint(tail_x, tail_y, n_segments=10):
     Interpolates the tail keypoints to create a curve with a specified number of segments.
 
     Parameters:
-        tail_x (numpy.ndarray): The x-coordinates of the tail keypoints. Shape: (T, n_segments_input).
-        tail_y (numpy.ndarray): The y-coordinates of the tail keypoints. Shape: (T, n_segments_input).
+        tail_x (numpy.ndarray): The x-coordinates of the tail keypoints.
+            Shape: (T, n_segments_init).
+        tail_y (numpy.ndarray): The y-coordinates of the tail keypoints.
+            Shape: (T, n_segments_init).
         n_segments (int, optional): The number of segments to interpolate. Default: 10.
 
     Returns:
-        numpy.ndarray: The interpolated x-coordinates of the tail keypoints. Shape: (T,n_segments+1).
-        numpy.ndarray: The interpolated y-coordinates of the tail keypoints. Shape: (T,n_segments+1).
+        numpy.ndarray: The interpolated x-coordinates of the tail keypoints. 
+            Shape: (T,n_segments+1).
+        numpy.ndarray: The interpolated y-coordinates of the tail keypoints. 
+            Shape: (T,n_segments+1).
     """
     if n_segments < 2:
         raise ValueError("there should be more than 3 keypoints.")
 
     # Extrapolate to 10 segments:
-    T, n_segments_init = tail_x.shape[0], tail_x.shape[1]
-    tail_x_interp = np.zeros((T, n_segments + 1)) * np.nan
-    tail_y_interp = np.zeros((T, n_segments + 1)) * np.nan
-    for i in range(T):
+    n_tps, n_segments_init = tail_x.shape[0], tail_x.shape[1]
+    tail_x_interp, tail_y_interp = np.zeros((2, n_tps, n_segments + 1)) * np.nan
+    # tail_y_interp = np.zeros((T, n_segments + 1)) * np.nan
+    for t in range(n_tps):
         try:
             points = np.array(
-                [tail_x[i, :], tail_y[i, :]]
+                [tail_x[t, :], tail_y[t, :]]
             ).T  # a (nbre_points x nbre_dim) array
             is_nan = np.any(np.isnan(points))
 
@@ -54,8 +61,8 @@ def interpolate_tail_keypoint(tail_x, tail_y, n_segments=10):
 
             curve = interpolator(alpha)
 
-            tail_x_interp[i, :N_seg] = curve[:, 0]
-            tail_y_interp[i, :N_seg] = curve[:, 1]
+            tail_x_interp[t, :N_seg] = curve[:, 0]
+            tail_y_interp[t, :N_seg] = curve[:, 1]
         except:
             pass
 
