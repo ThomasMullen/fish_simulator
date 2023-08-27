@@ -3,7 +3,7 @@ import os
 import itertools
 from pathlib import Path
 import tempfile
-from typing import List, Dict, Union
+from typing import List, Dict
 from tqdm import trange
 import numpy as np
 from numpy.typing import NDArray
@@ -158,7 +158,6 @@ def plot_image_and_segments(
     head_img: NDArray,
     seg_imgs: List[NDArray],
     img_dims: Dict[int, float],
-    f_path: str,
     i_cntr: int,
 ) -> None:
     """Plot the head an tail warped by interpolated angles
@@ -214,9 +213,7 @@ def plot_image_and_segments(
                 cum_x_shift * img_dims["img_sf"],
             ],
         )
-        fig.savefig(f"{f_path}/{i_cntr:03}.png", dpi=150)
         plt.close(fig)
-    return
 
 
 def make_video(png_dir: str, vid_fname: str, keep_pngs: bool = True) -> None:
@@ -241,4 +238,3 @@ def make_video(png_dir: str, vid_fname: str, keep_pngs: bool = True) -> None:
     if not keep_pngs:
         os.remove(png_dir)
         print(f"delete: {png_dir} folder")
-    return
