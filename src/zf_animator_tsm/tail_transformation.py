@@ -41,43 +41,43 @@ class TailInterpolator:
         tail_y_interp = np.zeros((n_tps, self.n_segments + 1)) * np.nan
 
         for i_tp in range(n_tps):
-            try:
-                points = np.array([self.tail_x[i_tp, :], self.tail_y[i_tp, :]]).T
-                is_nan = np.any(np.isnan(points))
+            # try:
+            points = np.array([self.tail_x[i_tp, :], self.tail_y[i_tp, :]]).T
+            is_nan = np.any(np.isnan(points))
 
-                if not is_nan:
-                    id_first_nan = points.shape[0]
-                    n_segments = self.n_segments + 1
-                else:
-                    id_first_nan = np.where(np.any(np.isnan(points), axis=1))[0][0]
-                    n_segments = int(
-                        np.round(id_first_nan / n_segments_init * (self.n_segments + 1))
-                    )
-
-                alpha = np.linspace(0, 1, n_segments)
-                distance = np.cumsum(
-                    np.sqrt(
-                        np.sum(np.diff(points[:id_first_nan, :], axis=0) ** 2, axis=1)
-                    )
+            if not is_nan:
+                id_first_nan = points.shape[0]
+                n_segments = self.n_segments + 1
+            else:
+                id_first_nan = np.where(np.any(np.isnan(points), axis=1))[0][0]
+                n_segments = int(
+                    np.round(id_first_nan / n_segments_init * (self.n_segments + 1))
                 )
-                distance = np.insert(distance, 0, 0) / distance[-1]
 
-                if len(distance) > 3:
-                    interpolator = interp1d(
-                        distance, points[:id_first_nan, :], kind="cubic", axis=0
-                    )
-                else:
-                    interpolator = interp1d(
-                        distance, points[:id_first_nan, :], kind="linear", axis=0
-                    )
+            alpha = np.linspace(0, 1, n_segments)
+            distance = np.cumsum(
+                np.sqrt(
+                    np.sum(np.diff(points[:id_first_nan, :], axis=0) ** 2, axis=1)
+                )
+            )
+            distance = np.insert(distance, 0, 0) / distance[-1]
 
-                curve = interpolator(alpha)
+            if len(distance) > 3:
+                interpolator = interp1d(
+                    distance, points[:id_first_nan, :], kind="cubic", axis=0
+                )
+            else:
+                interpolator = interp1d(
+                    distance, points[:id_first_nan, :], kind="linear", axis=0
+                )
 
-                tail_x_interp[i_tp, : self.n_segments] = curve[:, 0]
-                tail_y_interp[i_tp, : self.n_segments] = curve[:, 1]
-            except Exception as e:
-                print(f"Error {e} occurred.")
-                print(f"Keypoint interpolation failed tp: {i_tp}")
+            curve = interpolator(alpha)
+
+            tail_x_interp[i_tp, : self.n_segments] = curve[:, 0]
+            tail_y_interp[i_tp, : self.n_segments] = curve[:, 1]
+            # except Exception as e:
+            #     print(f"Error {e} occurred.")
+            #     print(f"Keypoint interpolation failed tp: {i_tp}")
 
         return tail_x_interp, tail_y_interp
 
