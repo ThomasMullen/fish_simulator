@@ -75,8 +75,10 @@ class TailInterpolator:
 
                 tail_x_interp[i_tp, : self.n_segments] = curve[:, 0]
                 tail_y_interp[i_tp, : self.n_segments] = curve[:, 1]
-            except:
+            except Exception as e:
+                print(f"Error {e} occurred.")
                 print(f"Keypoint interpolation failed tp: {i_tp}")
+                raise RuntimeError
 
         return tail_x_interp, tail_y_interp
 
