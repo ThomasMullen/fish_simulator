@@ -9,8 +9,8 @@ from numpy.typing import NDArray
 import matplotlib.pyplot as plt
 from matplotlib import transforms
 
-from .image_loading import ImageLoader
-from .tail_transformation import (
+from image_loading import ImageLoader
+from tail_transformation import (
     interpolate_keypoints,
     compute_angles_from_keypoints,
     convert_tail_angle_to_keypoints,
@@ -55,7 +55,9 @@ def make_simulation(
     tps = data.shape[0]
 
     # load image data
-    img_loader = ImageLoader()
+    # TODO: Fix the conflict of root path with test and this location for default dir
+    # img_loader = ImageLoader()
+    img_loader = ImageLoader("/Users/tom/VSCode/zf_animator_tsm/src/zf_animator_tsm/template_img/segs")
     head = img_loader.load_head()
     segs = img_loader.load_segments()
 
@@ -137,11 +139,12 @@ def make_simulation(
         os.remove(vid_fname)
 
     # make video
-    cmd = f"ffmpeg -r 35 -f image2 -i {f_path}/%03d.png -vcodec libx264\
+    cmd = f"ffmpeg -r 35 -f image2 -i {f_path}/%03d.png -vcodec libx264 \
     -crf 25 -pix_fmt yuv420p {vid_fname}"
     os.system(cmd)
     print(f"Saving video to: {vid_fname}")
 
+    # TODO: Make sure permitted to delete
     if not keep_pngs:
         os.remove(f_path)
         print(f"delete: {f_path} folder")
