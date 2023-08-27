@@ -1,11 +1,15 @@
+"""Unit test ImageLoader class functionality"""
 import unittest
-import numpy as np
 from pathlib import Path
+import numpy as np
 from src.zf_animator_tsm import image_loading
 
 
 class TestImageLoader(unittest.TestCase):
+    """Import class tester for ImageLoader"""
     def setUp(self):
+        """Instantiate default and constructed class
+        """
         print("\nRunning setUp method...")
         self.img_loader_default = image_loading.ImageLoader()
         self.img_loader = image_loading.ImageLoader(
@@ -13,15 +17,21 @@ class TestImageLoader(unittest.TestCase):
         )
 
     def tearDown(self):
+        """Destruct test class
+        """
         print("Running tearDown method...")
 
     def test_default_dir_exists(self):
+        """Test if directories exist in repo
+        """
         print("Running test_default_dir_exists")
         print(self.img_loader_default.seg_dir)
         self.assertEqual(Path(self.img_loader.seg_dir).is_dir(), True)
         self.assertEqual(Path(self.img_loader_default.seg_dir).is_dir(), True)
 
     def test_finds_default_dir(self):
+        """Test the default directory is valid
+        """
         print("Running test_default_dir is true")
         self.assertEqual(
             "src/zf_animator_tsm/template_img/segs"
@@ -30,6 +40,8 @@ class TestImageLoader(unittest.TestCase):
         )
 
     def test_all_segs_loaded(self):
+        """Check dimensions of segments loaded and dtype within list
+        """
         print("Running test_load_segment images...")
         self.assertEqual(len(self.img_loader.load_segments()), 38)
         self.assertEqual(
@@ -40,6 +52,8 @@ class TestImageLoader(unittest.TestCase):
         )
 
     def test_head_loaded(self):
+        """Test dimensions of loaded head
+        """
         print("Running test_load_head image...")
         self.assertEqual(self.img_loader.load_head().shape, (522, 836, 4))
 
