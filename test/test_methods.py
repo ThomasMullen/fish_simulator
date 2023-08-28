@@ -2,7 +2,7 @@
 import unittest
 from pathlib import Path
 import numpy as np
-from src.zf_animator_tsm import image_loading
+from src.fish_simulator import image_loading
 
 
 class TestImageLoader(unittest.TestCase):

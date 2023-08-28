@@ -4,7 +4,7 @@ with open("README.md", "r") as f:
     long_description = f.read()
 
 setup(
-    name="zf_animator_tsnm",
+    name="fish_simulator",
     version="0.0.1",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
@@ -12,7 +12,7 @@ setup(
         tracking data to tail animations",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/ThomasMullen/zf_animator_tsm",
+    url="https://github.com/ThomasMullen/fish_simulator",
     author="Thomas Soares Mullen",
     author_email="thomasmullen96@gmail.com",
     license="MIT",

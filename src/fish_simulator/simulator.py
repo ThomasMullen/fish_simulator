@@ -11,13 +11,13 @@ import matplotlib.pyplot as plt
 from matplotlib import transforms
 
 
-from src.zf_animator_tsm.tail_transformation import (
+from src.fish_simulator.tail_transformation import (
     interpolate_keypoints,
     compute_angles_from_keypoints,
     convert_tail_angle_to_keypoints,
     KeypointStruct,
 )
-from src.zf_animator_tsm.image_loading import ImageLoader
+from src.fish_simulator.image_loading import ImageLoader
 
 
 def make_simulation(
