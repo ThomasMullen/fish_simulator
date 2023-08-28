@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="fish_simulator",
-    version="0.0.1",
+    version="0.0.3",
     # package_dir={"": "src"},
     packages=find_packages(),
     description="Python toolbox to transform zebrafish\
