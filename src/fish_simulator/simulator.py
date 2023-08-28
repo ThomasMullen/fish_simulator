@@ -11,13 +11,13 @@ import matplotlib.pyplot as plt
 from matplotlib import transforms
 
 
-from src.fish_simulator.tail_transformation import (
+from fish_simulator.tail_transformation import (
     interpolate_keypoints,
     compute_angles_from_keypoints,
     convert_tail_angle_to_keypoints,
     KeypointStruct,
 )
-from src.fish_simulator.image_loading import ImageLoader
+from fish_simulator.image_loading import ImageLoader
 
 
 def make_simulation(
