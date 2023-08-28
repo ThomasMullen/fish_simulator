@@ -13,7 +13,7 @@ class TestImageLoader(unittest.TestCase):
         print("\nRunning setUp method...")
         self.img_loader_default = image_loading.ImageLoader()
         self.img_loader = image_loading.ImageLoader(
-            "./src/zf_animator_tsm/template_img/segs"
+            "./src/fish_simulator/template_img/segs"
         )
 
     def tearDown(self):
@@ -34,7 +34,7 @@ class TestImageLoader(unittest.TestCase):
         """
         print("Running test_default_dir is true")
         self.assertEqual(
-            "src/zf_animator_tsm/template_img/segs"
+            "src/fish_simulator/template_img/segs"
             in str(self.img_loader_default.seg_dir),
             True,
         )
