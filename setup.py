@@ -17,7 +17,7 @@ setup(
     author_email="thomasmullen96@gmail.com",
     license="MIT",
     install_requires=[
-        "matplotlib ",
+        "matplotlib",
         "numpy",
         "h5py",
         "scipy",
