@@ -222,12 +222,14 @@ def make_video(png_dir: str, vid_fname: str, keep_pngs: bool = True) -> None:
         keep_pngs (bool, optional): delete dir with png after video saved.
         Defaults to True.
     """
-    if os.path.exists(vid_fname):
+    vid_fname=Path(vid_fname)
+    png_dir=Path(png_dir)
+    if vid_fname.exists():
         os.remove(vid_fname)
 
     # make video
-    cmd = f"ffmpeg -r 35 -f image2 -i {png_dir}/%03d.png -vcodec libx264 \
-    -crf 25 -pix_fmt yuv420p {vid_fname}"
+    cmd = f"ffmpeg -r 35 -f image2 -i '{png_dir}'/%03d.png -vcodec libx264 \
+    -crf 25 -pix_fmt yuv420p '{vid_fname}'"
     os.system(cmd)
     print(f"Saving video to: {vid_fname}")
 
