@@ -139,7 +139,7 @@ def make_simulation(
         fig.savefig(f"{f_path}/{i_tp:03}.png", dpi=150)
         plt.close(fig)
 
-        # Contain in a single function
+        # Contain in a single function - v slow
         # plot_image_and_segments(
         #     interpolated_angles=intp_angs,
         #     head_img=head,
