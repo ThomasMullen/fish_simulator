@@ -29,7 +29,7 @@ def make_simulation(
 
     Args:
         data (np.ndarray): tail trace
-        f_path (str): filepath to save tmp pngs. Default None, will store and delete the temp folder.
+        f_path (str): filepath to save tmp pngs. Default None, will store and delete the temp folder
         upsample (int): Increase the segment resolution and interpolation by dividing by upsample.
 
     Example:
@@ -239,5 +239,5 @@ def make_video(png_dir: str, vid_fname: str, keep_pngs: bool = True) -> None:
             print(f"delete: {png_dir} folder")
         # except OSError as e:
         #     raise PermissionError(f"Not permitted to delete dir:\n{png_dir}") from e
-        except PermissionError as e:
-            print(f"Not permitted to delete dir:\n{png_dir}\n{e}")
+        except PermissionError as perm_e:
+            print(f"Not permitted to delete dir:\n{png_dir}\n{perm_e}")

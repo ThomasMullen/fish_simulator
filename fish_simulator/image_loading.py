@@ -1,5 +1,4 @@
 """Module loading image for animation."""
-import os
 from pathlib import Path
 from typing import List, Dict
 import numpy as np
