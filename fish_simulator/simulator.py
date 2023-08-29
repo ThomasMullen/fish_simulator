@@ -237,5 +237,7 @@ def make_video(png_dir: str, vid_fname: str, keep_pngs: bool = True) -> None:
         try:
             os.remove(png_dir)
             print(f"delete: {png_dir} folder")
-        except:
-            print(f"Not permitted to delete dir:\n{png_dir}")
+        # except OSError as e:
+        #     raise PermissionError(f"Not permitted to delete dir:\n{png_dir}") from e
+        except PermissionError as e:
+            print(f"Not permitted to delete dir:\n{png_dir}\n{e}")
