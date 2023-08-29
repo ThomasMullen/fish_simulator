@@ -234,7 +234,9 @@ def make_video(png_dir: str, vid_fname: str, keep_pngs: bool = True) -> None:
     os.system(cmd)
     print(f"Saving video to: {vid_fname}")
 
-    # TODO: Make sure permitted to delete
     if not keep_pngs:
-        os.remove(png_dir)
-        print(f"delete: {png_dir} folder")
+        try:
+            os.remove(png_dir)
+            print(f"delete: {png_dir} folder")
+        except:
+            print(f"Not permitted to delete dir:\n{png_dir}")
