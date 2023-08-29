@@ -29,16 +29,13 @@ def make_simulation(
 
     Args:
         data (np.ndarray): tail trace
-        fp (str): filepath to save tmp pngs. Default None, will store and delete the temp folder.
-        vid_fname (str): video filepath to store
-        image_tmp (dict): dict('head', 'segs') containing image parts as np arrays
+        f_path (str): filepath to save tmp pngs. Default None, will store and delete the temp folder.
+        upsample (int): Increase the segment resolution and interpolation by dividing by upsample.
 
     Example:
-    >>> head = np.load('./segs.npy', allow_pickle=True)
-    >>> segs = np.load('./head.npy')
-    >>> image_tmp = dict(head=head, segs=segs)
-    >>> make_simulation(data=traces, fp="/Users/dump",
-    vid_fname"/Users/dump/vid.mp4, image_tmp=image_tmp)
+    >>> tail_traces = np.load("filepath/tail_angle/data.npy")
+    >>> make_simulation(data=tail_traces, f_path="/Users/png/dump", upsample=4)
+    >>> make_video(png_dir="/Users/png/dump", vid_fname=path/to/video.mp4, keep_pngs=True)
 
     """
     assert data.ndim == 2, "Need to be 2D"
