@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fish_simulator"
-version = "0.0.6"
+version = "0.0.7"
 authors = [
   { name="Thomas Soares Mullen", email="thomas.mullen@fchampalimaud.org" },
 ]
