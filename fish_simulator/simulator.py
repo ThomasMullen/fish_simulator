@@ -24,13 +24,15 @@ def make_simulation(
     data: NDArray,
     upsample: int = None,
     f_path: str = None,
+    img_seg_path: str = None,
 ):
     """simulate fish dynamics on tail image
 
     Args:
         data (np.ndarray): tail trace
-        f_path (str): filepath to save tmp pngs. Default None, will store and delete the temp folder
         upsample (int): Increase the segment resolution and interpolation by dividing by upsample.
+        f_path (str): filepath to save tmp pngs. Default None, will store and delete the temp folder
+        img_seg_path (str): filepath to png segments. Default None, will use default fish
 
     Example:
     >>> tail_traces = np.load("filepath/tail_angle/data.npy")
@@ -50,7 +52,7 @@ def make_simulation(
     tps = data.shape[0]
 
     # load image data
-    img_loader = ImageLoader()
+    img_loader = ImageLoader(img_seg_path)
     # img_loader = ImageLoader("/Users/tom/VSCode/zf_animator_tsm/src/zf_animator_tsm/\
     #                          template_img/segs")
     head = img_loader.load_head()
@@ -222,8 +224,8 @@ def make_video(png_dir: str, vid_fname: str, keep_pngs: bool = True) -> None:
         keep_pngs (bool, optional): delete dir with png after video saved.
         Defaults to True.
     """
-    vid_fname=Path(vid_fname)
-    png_dir=Path(png_dir)
+    vid_fname = Path(vid_fname)
+    png_dir = Path(png_dir)
     if vid_fname.exists():
         os.remove(vid_fname)
 

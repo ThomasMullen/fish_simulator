@@ -6,8 +6,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name="fish_simulator",
-    version="0.0.7",
-    # package_dir={"": "src"},
+    version="0.0.8",
     packages=find_packages(),
     description="Python toolbox to transform zebrafish\
         tracking data to tail animations",
