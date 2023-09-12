@@ -234,12 +234,12 @@ def make_posture_simulation(
         dpi (int, optional): Image resolution. Defaults to 150.
     """
     assert data.ndim == 2, "Need to be 2D"
-    if f_path is None:
-        f_path = tempfile.mkdtemp()
-        print(f"Tmp dir: {f_path}")
+    if png_dir is None:
+        png_dir = tempfile.mkdtemp()
+        print(f"Tmp dir: {png_dir}")
     else:
-        f_path = Path(f_path)
-        f_path.mkdir(parents=True, exist_ok=True)
+        png_dir = Path(png_dir)
+        png_dir.mkdir(parents=True, exist_ok=True)
 
     data = data.T if data.shape[0] < data.shape[1] else data
     tps = data.shape[0]
@@ -291,7 +291,6 @@ def plot_bout_elapse(
     # define number of timepoints
     tps = intp_x.shape[0]
     # make color cycle through time
-    # colors = plt.cm.gray(np.linspace(0.1, 0.99, tps))
     colors = colormaps['gray'](np.linspace(0.1, 0.99, tps))
 
     fig, ax_tail = plt.subplots(figsize=(3, 2), dpi=150)
