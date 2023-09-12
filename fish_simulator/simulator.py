@@ -10,6 +10,7 @@ from numpy.typing import NDArray
 from cycler import cycler
 import matplotlib.pyplot as plt
 from matplotlib import transforms
+from matplotlib import colormaps
 
 
 from fish_simulator.tail_transformation import (
@@ -254,10 +255,8 @@ def make_posture_simulation(
         tail_to_tail_mm=0.32,
     )
     # smooth signals
-    intp_x, intp_y = interpolate_keypoints(
-        KeypointStruct(tail_x, tail_y, n_segments)
-    )
-    
+    intp_x, intp_y = interpolate_keypoints(KeypointStruct(tail_x, tail_y, n_segments))
+
     # set frame boundary
     threshold = np.max(np.abs(intp_y))
     for i in trange(tps):
@@ -270,11 +269,13 @@ def make_posture_simulation(
         plt.close(fig)
 
 
-def plot_bout_elapse(intp_x:NDArray, 
-                    intp_y:NDArray, 
-                    file_path:str,
-                    line_wid:float=1, 
-                    return_color_key:bool=False):
+def plot_bout_elapse(
+    intp_x: NDArray,
+    intp_y: NDArray,
+    file_path: str,
+    line_wid: float = 1,
+    return_color_key: bool = False,
+):
     """Plot 2d image of posture elapsed through time and color coded by
     grayscale color map.
     Args:
@@ -284,43 +285,45 @@ def plot_bout_elapse(intp_x:NDArray,
         line_wid (float, optional): linewidth o plot. Defaults to 1.
         return_color_key (bool, optional): _description_. Defaults to False.
     """
-    
+
     # file_path
     file_path = Path(file_path)
     # define number of timepoints
     tps = intp_x.shape[0]
     # make color cycle through time
-    colors=plt.cm.gray(np.linspace(.1, .99, tps))
-    
-    fig, ax_tail = plt.subplots(figsize=(3,2), dpi=150)
+    # colors = plt.cm.gray(np.linspace(0.1, 0.99, tps))
+    colors = colormaps['gray'](np.linspace(0.1, 0.99, tps))
+
+    fig, ax_tail = plt.subplots(figsize=(3, 2), dpi=150)
     ax_tail.set_prop_cycle(cycler(color=colors))
     for i in trange(tps):
         # flip x-axis - head (left) to tail (right)
-        ax_tail.plot(intp_x[i,::-1], intp_y[i,:], lw=line_wid, alpha=.8)
-    ax_tail.spines[['left','right', 'top', "bottom"]].set_visible(False)
+        ax_tail.plot(intp_x[i, ::-1], intp_y[i, :], lw=line_wid, alpha=0.8)
+    ax_tail.spines[["left", "right", "top", "bottom"]].set_visible(False)
     ax_tail.set(
-        yticks=[],
-        xticks=[],
-        ylim=[-np.max(np.abs(intp_y)),np.max(np.abs(intp_y))]
+        yticks=[], xticks=[], ylim=[-np.max(np.abs(intp_y)), np.max(np.abs(intp_y))]
     )
     fig.savefig(file_path, transparent=True, dpi=350, bbox_inches="tight")
-    
+
     # return the colro encoding time
     if return_color_key:
         col_key = np.linspace(np.min(intp_x), np.max(intp_x), tps)
-        fig, ax_tail = plt.subplots(figsize=(3,.3), dpi=150)
-        for i in range(tps-1):
-            ax_tail.spines[['left','right', 'top', "bottom"]].set_visible(False)
+        fig, ax_tail = plt.subplots(figsize=(3, 0.3), dpi=150)
+        for i in range(tps - 1):
+            ax_tail.spines[["left", "right", "top", "bottom"]].set_visible(False)
             ax_tail.set(
                 yticks=[],
                 xticks=[],
             )
-            ax_tail.hlines(0, col_key[i], col_key[i+1], lw=2, alpha=1, color=colors[i])
-        fig.savefig(Path(file_path.parent,f"{file_path.stem}_key{file_path.suffix}"),
-                    transparent=True, 
-                    dpi=350, 
-                    bbox_inches="tight"
-                    )
+            ax_tail.hlines(
+                0, col_key[i], col_key[i + 1], lw=2, alpha=1, color=colors[i]
+            )
+        fig.savefig(
+            Path(file_path.parent, f"{file_path.stem}_key{file_path.suffix}"),
+            transparent=True,
+            dpi=350,
+            bbox_inches="tight",
+        )
 
 
 def make_video(png_dir: str, vid_fname: str, keep_pngs: bool = True) -> None:
