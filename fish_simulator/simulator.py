@@ -220,7 +220,7 @@ def make_posture_simulation(
     data: NDArray,
     png_dir: str,
     n_segments: int = 30,
-    lw: float = 2.5,
+    line_wid: float = 2.5,
     dpi: int = 150,
 ):
     """Generate video of tail posture
@@ -229,7 +229,7 @@ def make_posture_simulation(
         data (NDArray): 2D timeseries data of angular segments
         png_dir (str): filepath to store individual png plots
         n_segments (int, optional): Number of segments to generate bout. Defaults to 30.
-        lw (float, optional): Tail posture linewidth. Defaults to 2.5.
+        line_wid (float, optional): Tail posture linewidth. Defaults to 2.5.
         dpi (int, optional): Image resolution. Defaults to 150.
     """
     assert data.ndim == 2, "Need to be 2D"
@@ -247,25 +247,80 @@ def make_posture_simulation(
     tps = data.shape[0]
     # convert angs to x-y coords
     tail_x, tail_y = convert_tail_angle_to_keypoints(
-        body_x=np.zeros(tps),
-        body_y=np.zeros(tps),
+        body_xy=np.zeros((tps, 2)),
         body_angle=np.zeros(tps),
         tail_angle=data,
         body_to_tail_mm=0.5,
         tail_to_tail_mm=0.32,
     )
     # smooth signals
-    intp_x, intp_y = interpolate_keypoints(tail_x, tail_y, n_segments=n_segments)
+    intp_x, intp_y = interpolate_keypoints(
+        KeypointStruct(tail_x, tail_y, n_segments)
+    )
+    
     # set frame boundary
     threshold = np.max(np.abs(intp_y))
     for i in trange(tps):
-        fig, ax = plt.subplots(figsize=(3, 2))
-        ax.spines[["left", "right", "top", "bottom"]].set_visible(False)
-        ax.set(yticks=[], xticks=[], ylim=[-threshold, threshold])
+        fig, ax_posture = plt.subplots(figsize=(3, 2))
+        ax_posture.spines[["left", "right", "top", "bottom"]].set_visible(False)
+        ax_posture.set(yticks=[], xticks=[], ylim=[-threshold, threshold])
         # flip x-axis =  head (left) to tail (right)
-        ax.plot(intp_x[i, ::-1], intp_y[i, :], c="k", lw=lw)
+        ax_posture.plot(intp_x[i, ::-1], intp_y[i, :], c="k", lw=line_wid)
         fig.savefig(f"{png_dir}/{i:03}.png", dpi=dpi)
         plt.close(fig)
+
+
+def plot_bout_elapse(intp_x:NDArray, 
+                    intp_y:NDArray, 
+                    file_path:str,
+                    line_wid:float=1, 
+                    return_color_key:bool=False):
+    """Plot 2d image of posture elapsed through time and color coded by
+    grayscale color map.
+    Args:
+        intp_x (NDArray): interpolated x values
+        intp_y (NDArray): interpolated y values
+        file_path (str): filepath to save image
+        line_wid (float, optional): linewidth o plot. Defaults to 1.
+        return_color_key (bool, optional): _description_. Defaults to False.
+    """
+    
+    # file_path
+    file_path = Path(file_path)
+    # define number of timepoints
+    tps = intp_x.shape[0]
+    # make color cycle through time
+    colors=plt.cm.gray(np.linspace(.1, .99, tps))
+    
+    fig, ax_tail = plt.subplots(figsize=(3,2), dpi=150)
+    ax_tail.set_prop_cycle(cycler(color=colors))
+    for i in trange(tps):
+        # flip x-axis - head (left) to tail (right)
+        ax_tail.plot(intp_x[i,::-1], intp_y[i,:], lw=line_wid, alpha=.8)
+    ax_tail.spines[['left','right', 'top', "bottom"]].set_visible(False)
+    ax_tail.set(
+        yticks=[],
+        xticks=[],
+        ylim=[-np.max(np.abs(intp_y)),np.max(np.abs(intp_y))]
+    )
+    fig.savefig(file_path, transparent=True, dpi=350, bbox_inches="tight")
+    
+    # return the colro encoding time
+    if return_color_key:
+        col_key = np.linspace(np.min(intp_x), np.max(intp_x), tps)
+        fig, ax_tail = plt.subplots(figsize=(3,.3), dpi=150)
+        for i in range(tps-1):
+            ax_tail.spines[['left','right', 'top', "bottom"]].set_visible(False)
+            ax_tail.set(
+                yticks=[],
+                xticks=[],
+            )
+            ax_tail.hlines(0, col_key[i], col_key[i+1], lw=2, alpha=1, color=colors[i])
+        fig.savefig(Path(file_path.parent,f"{file_path.stem}_key{file_path.suffix}"),
+                    transparent=True, 
+                    dpi=350, 
+                    bbox_inches="tight"
+                    )
 
 
 def make_video(png_dir: str, vid_fname: str, keep_pngs: bool = True) -> None:

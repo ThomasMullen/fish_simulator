@@ -7,4 +7,9 @@ from .tail_transformation import (
     convert_tail_angle_to_keypoints,
     KeypointStruct
 )
-from .simulator import make_simulation
+from .simulator import (
+    make_image_simulation,
+    make_posture_simulation,
+    make_video,
+    plot_bout_elapse,
+)
