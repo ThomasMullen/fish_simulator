@@ -7,6 +7,7 @@ from typing import List, Dict
 from tqdm import trange
 import numpy as np
 from numpy.typing import NDArray
+from cycler import cycler
 import matplotlib.pyplot as plt
 from matplotlib import transforms
 
@@ -216,7 +217,7 @@ def plot_image_and_segments(
 
 
 def make_posture_simulation(
-    data: np.ndarray,
+    data: NDArray,
     png_dir: str,
     n_segments: int = 30,
     lw: float = 2.5,
@@ -225,7 +226,7 @@ def make_posture_simulation(
     """Generate video of tail posture
 
     Args:
-        data (np.ndarray): 2D timeseries data of angular segments
+        data (NDArray): 2D timeseries data of angular segments
         png_dir (str): filepath to store individual png plots
         n_segments (int, optional): Number of segments to generate bout. Defaults to 30.
         lw (float, optional): Tail posture linewidth. Defaults to 2.5.
