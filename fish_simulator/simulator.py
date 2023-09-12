@@ -20,7 +20,7 @@ from fish_simulator.tail_transformation import (
 from fish_simulator.image_loading import ImageLoader
 
 
-def make_simulation(
+def make_image_simulation(
     data: NDArray,
     upsample: int = None,
     f_path: str = None,
@@ -36,7 +36,7 @@ def make_simulation(
 
     Example:
     >>> tail_traces = np.load("filepath/tail_angle/data.npy")
-    >>> make_simulation(data=tail_traces, f_path="/Users/png/dump", upsample=4)
+    >>> make_image_simulation(data=tail_traces, f_path="/Users/png/dump", upsample=4)
     >>> make_video(png_dir="/Users/png/dump", vid_fname=path/to/video.mp4, keep_pngs=True)
 
     """
@@ -212,6 +212,58 @@ def plot_image_and_segments(
                 cum_x_shift * img_dims["img_sf"],
             ],
         )
+        plt.close(fig)
+
+
+def make_posture_simulation(
+    data: np.ndarray,
+    png_dir: str,
+    n_segments: int = 30,
+    lw: float = 2.5,
+    dpi: int = 150,
+):
+    """Generate video of tail posture
+
+    Args:
+        data (np.ndarray): 2D timeseries data of angular segments
+        png_dir (str): filepath to store individual png plots
+        n_segments (int, optional): Number of segments to generate bout. Defaults to 30.
+        lw (float, optional): Tail posture linewidth. Defaults to 2.5.
+        dpi (int, optional): Image resolution. Defaults to 150.
+    """
+    assert data.ndim == 2, "Need to be 2D"
+    if f_path is None:
+        f_path = tempfile.mkdtemp()
+        print(f"Tmp dir: {f_path}")
+    else:
+        f_path = Path(f_path)
+        f_path.mkdir(parents=True, exist_ok=True)
+
+    data = data.T if data.shape[0] < data.shape[1] else data
+    tps = data.shape[0]
+
+    data = data.T if data.shape[0] < data.shape[1] else data
+    tps = data.shape[0]
+    # convert angs to x-y coords
+    tail_x, tail_y = convert_tail_angle_to_keypoints(
+        body_x=np.zeros(tps),
+        body_y=np.zeros(tps),
+        body_angle=np.zeros(tps),
+        tail_angle=data,
+        body_to_tail_mm=0.5,
+        tail_to_tail_mm=0.32,
+    )
+    # smooth signals
+    intp_x, intp_y = interpolate_keypoints(tail_x, tail_y, n_segments=n_segments)
+    # set frame boundary
+    threshold = np.max(np.abs(intp_y))
+    for i in trange(tps):
+        fig, ax = plt.subplots(figsize=(3, 2))
+        ax.spines[["left", "right", "top", "bottom"]].set_visible(False)
+        ax.set(yticks=[], xticks=[], ylim=[-threshold, threshold])
+        # flip x-axis =  head (left) to tail (right)
+        ax.plot(intp_x[i, ::-1], intp_y[i, :], c="k", lw=lw)
+        fig.savefig(f"{png_dir}/{i:03}.png", dpi=dpi)
         plt.close(fig)
 
 

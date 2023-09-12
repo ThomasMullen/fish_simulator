@@ -59,9 +59,22 @@ Check it is installed by running `which ffmpeg` in the terminal. More details ca
 
 ## Example
 
+### Default image simulation
+
+This will use warp the default repo `.png` and stack the generated images into an `.mp4`.
+
 ```python
-from fish_simulator.simulator import make_simulation
-make_simulation(tail_angle_data, upsample=4, "dir/to/save/png_files")
+from fish_simulator.simulator import make_image_simulation, make_video
+make_image_simulation(data=tail_angle_data, upsample=4, f_path="dir/to/save/png_files")
+make_video(png_dir="dir/to/save/png_files", vid_fname="file/path/of/generated_vid.mp4")
+```
+
+### Generate a simulation of the fish tail posture
+
+```python
+from fish_simulator.simulator import make_posture_simulation, make_video
+make_posture_simulation(data=tail_angle_data, n_segments=30, png_dir="dir/to/save/png_files")
+make_video(png_dir="dir/to/save/png_files", vid_fname="file/path/of/generated_vid.mp4")
 ```
 
 ## Key Functions
