@@ -24,7 +24,7 @@ class ImageLoader:
         Returns:
             List[NDArray]: elements of numpy arrays of different shape forming tail.
         """
-        n_segs = len(list(Path(self.seg_dir).iterdir()))
+        n_segs = len(list(Path(self.seg_dir).rglob("*.png")))
         segs = [
             np.asarray(Image.open(f"{self.seg_dir}/{i:02}.png")) for i in range(n_segs)
         ]

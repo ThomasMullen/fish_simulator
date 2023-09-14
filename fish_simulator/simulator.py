@@ -140,7 +140,7 @@ def make_image_simulation(
             ylim=[(-cum_x_len) * img_dims["img_sf"], cum_x_len * img_dims["img_sf"]],
         )
 
-        fig.savefig(f"{f_path}/{i_tp:03}.png", dpi=150)
+        fig.savefig(f"{f_path}/{i_tp:05}.png", dpi=150)
         plt.close(fig)
 
         # Contain in a single function - v slow
@@ -265,7 +265,7 @@ def make_posture_simulation(
         ax_posture.set(yticks=[], xticks=[], ylim=[-threshold, threshold])
         # flip x-axis =  head (left) to tail (right)
         ax_posture.plot(intp_x[i, ::-1], intp_y[i, :], c="k", lw=line_wid)
-        fig.savefig(f"{png_dir}/{i:03}.png", dpi=dpi)
+        fig.savefig(f"{png_dir}/{i:05}.png", dpi=dpi)
         plt.close(fig)
 
 
@@ -291,7 +291,8 @@ def plot_bout_elapse(
     # define number of timepoints
     tps = intp_x.shape[0]
     # make color cycle through time
-    colors = colormaps['gray'](np.linspace(0.1, 0.99, tps))
+    # colors = colormaps['gray'](np.linspace(0.1, 0.99, tps))
+    colors = colormaps['gray'](np.linspace(0.99, 0.1, tps))
 
     fig, ax_tail = plt.subplots(figsize=(3, 2), dpi=150)
     ax_tail.set_prop_cycle(cycler(color=colors))
@@ -340,7 +341,7 @@ def make_video(png_dir: str, vid_fname: str, keep_pngs: bool = True) -> None:
         os.remove(vid_fname)
 
     # make video
-    cmd = f"ffmpeg -r 35 -f image2 -i '{png_dir}'/%03d.png -vcodec libx264 \
+    cmd = f"ffmpeg -r 35 -f image2 -i '{png_dir}'/%05d.png -vcodec libx264 \
     -crf 25 -pix_fmt yuv420p '{vid_fname}'"
     os.system(cmd)
     print(f"Saving video to: {vid_fname}")
