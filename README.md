@@ -28,8 +28,8 @@ Alternatively, you can download and locally install the package.
 cd path/to/save/package
 git clone clone-latest-tag git@github.com:ThomasMullen/fish_simulator.git
 cd ./fish_simulator
-python3 setup.py bdist_wheel sdist
-pip install ./dist/fish_simulator-<latest_tag>.tar.gz
+python -m build
+pip install -e .
 ```
 
 ## Requires `ffmpeg`
@@ -55,18 +55,27 @@ Check it is installed by running `which ffmpeg` in the terminal. More details ca
 
 ## Default Fish image
 
-![zebrafish_example](fish_simulator/png_template/whole_larval_zf.png)
+![zebrafish_example](fish_simulator/fish_imgs/example_sim.gif)
 
 ## Example
 
-### Default image simulation
+### Simple image plot of posture
 
-This will use warp the default repo `.png` and stack the generated images into an `.mp4`.
+This displays a virtual structure of the fish posture. There are several plots you can perform, with the option of converting to a video.
+These functions are `plot_bout_elapse`, `plot_skeletal_postures`, and `plot_skeletal_postures_with_trace`. There are passed through the `run` function. Here is an example.
 
 ```python
-from fish_simulator.simulator import make_image_simulation, make_video
-make_image_simulation(data=tail_angle_data, upsample=4, f_path="dir/to/save/png_files")
-make_video(png_dir="dir/to/save/png_files", vid_fname="file/path/of/generated_vid.mp4")
+import numpy as np
+from fish_simulator import run
+
+data_arr = np.load("fish_simulator/test/fixtures/swim01.npy")
+run(
+    data_arr,
+    plot_func=plot_skeletal_postures_with_trace,
+    dir="path/to/dir/plts",
+    vid_fp="path/to/video/anim.mp4",
+    line_wid=1
+    )
 ```
 
 ### Generate a simulation of the fish tail posture

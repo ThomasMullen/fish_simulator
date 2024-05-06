@@ -7,3 +7,5 @@ scipy
 twine
 tqdm
 wheel
+cmcrameri
+build

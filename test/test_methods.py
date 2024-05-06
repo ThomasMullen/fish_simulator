@@ -2,7 +2,7 @@
 import unittest
 from pathlib import Path
 import numpy as np
-from fish_simulator import image_loading
+from fish_simulator import image_loader
 
 
 class TestImageLoader(unittest.TestCase):
@@ -11,8 +11,8 @@ class TestImageLoader(unittest.TestCase):
         """Instantiate default and constructed class
         """
         print("\nRunning setUp method...")
-        self.img_loader_default = image_loading.ImageLoader()
-        self.img_loader = image_loading.ImageLoader(
+        self.img_loader_default = image_loader.ImageLoader()
+        self.img_loader = image_loader.ImageLoader(
             "./fish_simulator/template_img/segs"
         )
 
