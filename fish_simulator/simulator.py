@@ -292,7 +292,7 @@ def plot_bout_elapse(
     tps = intp_x.shape[0]
     # make color cycle through time
     # colors = colormaps['gray'](np.linspace(0.1, 0.99, tps))
-    colors = colormaps['gray'](np.linspace(0.99, 0.1, tps))
+    colors = colormaps["gray"](np.linspace(0.99, 0.1, tps))
 
     fig, ax_tail = plt.subplots(figsize=(3, 2), dpi=150)
     ax_tail.set_prop_cycle(cycler(color=colors))

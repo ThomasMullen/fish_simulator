@@ -1,24 +1,47 @@
 [build-system]
-requires = ["setuptools>=61.0", "setuptools_scm[toml]>=6.2"]
+requires = ["setuptools >= 61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "fish_simulator"
-version = "0.0.10"
 authors = [
-  { name="Thomas Soares Mullen", email="thomas.mullen@fchampalimaud.org" },
+  { name="Thomas Soares Mullen", email="thomasmullen96@gmail.com" },
 ]
 description = "Simulate zebrafish swim from tail angle tracking data"
 readme = "README.md"
 requires-python = ">=3.9"
+license = {file = "LICENSE"}
+dynamic = ["dependencies", "version"]
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
-    "Operating System :: OS Independent",
+  "Development Status :: 3 - Alpha",
+  # Indicate who your project is intended for
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Education",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Scientific/Engineering :: Physics",
+  # Pick your license as you wish
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3 :: Only",
 ]
+
+[tool.setuptools]
+#packages = ["fish_simulator", "test"]
+#package-dir = {"" = "fish_simulator"}
+
+[tool.setuptools.packages]
+find = {}
+
+[tool.setuptools.dynamic]
+version = {file = "fish_simulator/VERSION"}
+dependencies = {file = ["requirements.txt"]}
+
 
 [project.urls]
 "Homepage" = "https://github.com/ThomasMullen/fish_simulator"
 "Bug Tracker" = "https://github.com/ThomasMullen/fish_simulator/issues"
-
-[tool.setuptools_scm]

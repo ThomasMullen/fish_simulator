@@ -1,8 +1,9 @@
+black
+h5py
+matplotlib
 numpy
 Pillow
-matplotlib
 scipy
-wheel
 twine
-black
 tqdm
+wheel

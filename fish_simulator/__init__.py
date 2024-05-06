@@ -5,7 +5,7 @@ from .tail_transformation import (
     interpolate_keypoints,
     compute_angles_from_keypoints,
     convert_tail_angle_to_keypoints,
-    KeypointStruct
+    KeypointStruct,
 )
 from .simulator import (
     make_image_simulation,

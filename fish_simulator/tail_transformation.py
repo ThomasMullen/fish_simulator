@@ -75,8 +75,8 @@ def interpolate_keypoints(key_pnt_struc: KeypointStruct) -> Tuple[NDArray, NDArr
 
         curve = interpolator(alpha)
 
-        tail_x_interp[i_tp, : key_pnt_struc.n_segments+1] = curve[:, 0]
-        tail_y_interp[i_tp, : key_pnt_struc.n_segments+1] = curve[:, 1]
+        tail_x_interp[i_tp, : key_pnt_struc.n_segments + 1] = curve[:, 0]
+        tail_y_interp[i_tp, : key_pnt_struc.n_segments + 1] = curve[:, 1]
         # except Exception as e:
         #     print(f"Error {e} occurred.")
         #     print(f"Keypoint interpolation failed tp: {i_tp}")
