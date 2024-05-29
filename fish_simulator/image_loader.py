@@ -6,6 +6,13 @@ import numpy as np
 from numpy.typing import NDArray
 from PIL import Image
 
+TAIL_PATH = Path(
+    Path(__file__).parent, "templates", "template_img3", "segs", "tail.png"
+)
+HEAD_PATH = Path(Path(__file__).parent, "templates", "template_img3", "head.png")
+TAIL_IMG = np.flipud(np.asarray(Image.open(TAIL_PATH)))
+HEAD_IMG = np.asarray(Image.open(HEAD_PATH))
+
 
 class ImageLoader:
     """Self contained loader that returns the tail segments and head images."""
@@ -135,9 +142,10 @@ def make_pixel_posture_struct() -> PostureStruct:
     Returns:
         PostureStruct: adapted default posture struct for pixel posture
     """
-    xs = np.linspace(0, 1296, 7)
-    y_pos = np.array([312] * 8)
-    y_0 = np.array([156] * 8)
+    img_wid, img_height = TAIL_IMG.shape[:2]
+    xs = np.linspace(0, img_height, 7)
+    y_pos = np.array([img_wid] * 8)
+    y_0 = np.array([img_wid // 2] * 8)
     y_neg = np.array([0] * 8)
-    seg_width = np.array([216] * 8)
+    seg_width = np.array([img_wid] * 8)
     return PostureStruct(xs=xs, y_pos=y_pos, y_neg=y_neg, y_0=y_0, seg_width=seg_width)
