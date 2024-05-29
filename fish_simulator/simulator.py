@@ -28,21 +28,32 @@ from fish_simulator.utils import (
     grey_to_black_cycler,
 )
 
-IMAGE_PATH = (
-            "templates/template_img2/"
-            "segs/"
-            )
+IMAGE_PATH = "templates/template_img2/" "segs/"
 
 image_loader = ImageLoader(Path(Path(__file__).parent, IMAGE_PATH))
 
-def run(data: NDArray, plot_func: Callable, dir: str, vid_fp: str, n_intp_segs: int=49, img_kwargs: Dict[float, float]={"body_to_tail_mm": 0.5, "tail_to_tail_mm": 0.32,}, **kwargs):
+
+def run(
+    data: NDArray,
+    plot_func: Callable,
+    dir: str,
+    vid_fp: str,
+    n_intp_segs: int = 49,
+    img_kwargs: Dict[float, float] = {
+        "body_to_tail_mm": 0.5,
+        "tail_to_tail_mm": 0.32,
+    },
+    **kwargs,
+):
     # intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(data, *args)
     if plot_func in [plot_tail_image, plot_tail_image_with_trace]:
         posture_struct = make_pixel_posture_struct()
     else:
         posture_struct = PostureStruct()  # or whatever the default is
 
-    intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(-1*data, posture_struct, n_intp_segs, img_kwargs=img_kwargs)
+    intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(
+        -1 * data, posture_struct, n_intp_segs, img_kwargs=img_kwargs
+    )
     plot_func(data, low_xy, intp_xy, upp_xy, dir, **kwargs)
     if vid_fp is not None:
         vid_fp = Path(vid_fp)
@@ -55,7 +66,10 @@ def generate_skeletal_postures(
     data: NDArray,
     posture_struct: PostureStruct = PostureStruct(),
     intp_n_segs: int = 30,
-    img_kwargs: Dict[float, float] = {"body_to_tail_mm": 0.5, "tail_to_tail_mm": 0.32,},
+    img_kwargs: Dict[float, float] = {
+        "body_to_tail_mm": 0.5,
+        "tail_to_tail_mm": 0.32,
+    },
 ) -> Tuple[NDArray, Tuple[NDArray, NDArray], NDArray]:
     """Generate skeletal postures based on input data.
 
@@ -73,7 +87,7 @@ def generate_skeletal_postures(
     """
     data, (tps, n_dims) = orientate_data(data)
 
-    onset = 0 if img_kwargs['body_to_tail_mm'] == 0.5 else img_kwargs['body_to_tail_mm']
+    onset = 0 if img_kwargs["body_to_tail_mm"] == 0.5 else img_kwargs["body_to_tail_mm"]
     print("onset", onset)
 
     # convert x-y pos
@@ -132,43 +146,50 @@ def plot_tail_image(
 
     # concatenate image segments
     template_data = image_loader.return_zf_img()
-    head = template_data['head']
-    seg_imgs = np.flipud(np.concatenate(template_data['segs'], axis=1))
+    head = template_data["head"]
+    seg_imgs = np.flipud(np.concatenate(template_data["segs"], axis=1))
     y_len, x_len = seg_imgs.shape[:2]
 
     # define base image coords
-    top = np.c_[np.r_[0,np.arange(0,x_len, 27)], np.full(49,y_len)]
-    mid = np.c_[np.r_[0,np.arange(0,x_len, 27)], np.full(49,y_len//2)]
-    bot = np.c_[np.r_[0,np.arange(0,x_len, 27)], np.zeros(49)]
+    top = np.c_[np.r_[0, np.arange(0, x_len, 27)], np.full(49, y_len)]
+    mid = np.c_[np.r_[0, np.arange(0, x_len, 27)], np.full(49, y_len // 2)]
+    bot = np.c_[np.r_[0, np.arange(0, x_len, 27)], np.zeros(49)]
     src = np.r_[top[:-1], mid[:-1], bot[:-1]]
 
     for t_ in trange(tps):
         # warped coords
-        dst = np.r_[lower[:,t_,:].T[:-1], center[:,t_,:].T[:-1], upper[:,t_,:].T[:-1]]
-        x_range, y_range = int(np.ceil(np.max(dst[:, 1]))), int(np.ceil(np.max(dst[:, 0])))
+        dst = np.r_[
+            lower[:, t_, :].T[:-1], center[:, t_, :].T[:-1], upper[:, t_, :].T[:-1]
+        ]
+        x_range, y_range = int(np.ceil(np.max(dst[:, 1]))), int(
+            np.ceil(np.max(dst[:, 0]))
+        )
         # apply transform
         tform = PiecewiseAffineTransform()
         tform.estimate(src[1::3], dst[1::3])
         warped = warp(seg_imgs, tform.inverse, output_shape=(x_range, y_range))
-        
-        
+
         fig, ax_posture = plt.subplots(dpi=200)
-        ax_posture.imshow(warped, cmap=plt.cm.gray, origin='lower',)
-        ax_posture.imshow(head, cmap=plt.cm.gray, extent=[-552,28,25,285])
+        ax_posture.imshow(
+            warped,
+            cmap=plt.cm.gray,
+            origin="lower",
+        )
+        ax_posture.imshow(head, cmap=plt.cm.gray, extent=[-552, 28, 25, 285])
         ax_posture.set(
             xlim=(-600, x_len),
             ylim=(-x_len, x_len),
-            yticks=[], 
+            yticks=[],
             xticks=[],
         )
         # ax_posture.spines[["left", "right", "top", "bottom"]].set_visible(False)
-        ax_posture.axis('off')
+        ax_posture.axis("off")
 
         fig.tight_layout()
         fig.savefig(f"{f_path}/{t_:05}.png", dpi=150)
         plt.close(fig)
     pass
-    
+
 
 def plot_tail_image_with_trace(
     trace_data: NDArray,
@@ -189,25 +210,29 @@ def plot_tail_image_with_trace(
 
     # concatenate image segments
     template_data = image_loader.return_zf_img()
-    head = template_data['head']
-    seg_imgs = np.flipud(np.concatenate(template_data['segs'], axis=1))
+    head = template_data["head"]
+    seg_imgs = np.flipud(np.concatenate(template_data["segs"], axis=1))
     y_len, x_len = seg_imgs.shape[:2]
 
     # define base image coords
-    top = np.c_[np.r_[0,np.arange(0,x_len, 27)], np.full(49,y_len)]
-    mid = np.c_[np.r_[0,np.arange(0,x_len, 27)], np.full(49,y_len//2)]
-    bot = np.c_[np.r_[0,np.arange(0,x_len, 27)], np.zeros(49)]
+    top = np.c_[np.r_[0, np.arange(0, x_len, 27)], np.full(49, y_len)]
+    mid = np.c_[np.r_[0, np.arange(0, x_len, 27)], np.full(49, y_len // 2)]
+    bot = np.c_[np.r_[0, np.arange(0, x_len, 27)], np.zeros(49)]
     src = np.r_[top[:-1], mid[:-1], bot[:-1]]
 
     for t_ in trange(tps):
         # warped coords
-        dst = np.r_[lower[:,t_,:].T[:-1], center[:,t_,:].T[:-1], upper[:,t_,:].T[:-1]]
-        x_range, y_range = int(np.ceil(np.max(dst[:, 1]))), int(np.ceil(np.max(dst[:, 0])))
+        dst = np.r_[
+            lower[:, t_, :].T[:-1], center[:, t_, :].T[:-1], upper[:, t_, :].T[:-1]
+        ]
+        x_range, y_range = int(np.ceil(np.max(dst[:, 1]))), int(
+            np.ceil(np.max(dst[:, 0]))
+        )
         # apply transform
         tform = PiecewiseAffineTransform()
         tform.estimate(src[1::3], dst[1::3])
         warped = warp(seg_imgs, tform.inverse, output_shape=(x_range, y_range))
-        
+
         fig, (ax_trace, ax_posture) = plt.subplots(1, 2, figsize=(8, 4), dpi=200)
         # fish_trace
         ax_trace.set_title(f_path.stem)
@@ -219,15 +244,19 @@ def plot_tail_image_with_trace(
         ax_trace.set_yticks([])
         # ax_trace.spines[['right', 'top']].set_visible(True)
         ax_trace.set_axis_off()
-        ax_posture.imshow(warped, cmap=plt.cm.gray, origin='lower',)
-        ax_posture.imshow(head, cmap=plt.cm.gray, extent=[-552,28,25,285])
+        ax_posture.imshow(
+            warped,
+            cmap=plt.cm.gray,
+            origin="lower",
+        )
+        ax_posture.imshow(head, cmap=plt.cm.gray, extent=[-552, 28, 25, 285])
         ax_posture.set(
             xlim=(-600, x_len),
             ylim=(-x_len, x_len),
-            yticks=[], 
+            yticks=[],
             xticks=[],
         )
-        ax_posture.axis('off')
+        ax_posture.axis("off")
 
         fig.tight_layout()
         fig.savefig(f"{f_path}/{t_:05}.png", dpi=150)

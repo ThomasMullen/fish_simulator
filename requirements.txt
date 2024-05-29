@@ -9,4 +9,4 @@ tqdm
 wheel
 cmcrameri
 build
-scikit-image
+scikit - image
