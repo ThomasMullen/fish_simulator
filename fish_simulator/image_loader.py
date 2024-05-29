@@ -127,3 +127,17 @@ class PostureStruct:
         )
         / 2
     )
+
+
+def make_pixel_posture_struct() -> PostureStruct:
+    """Generate the posture struct for pixel posture
+
+    Returns:
+        PostureStruct: adapted default posture struct for pixel posture
+    """
+    xs = np.linspace(0, 1296, 7)
+    y_pos = np.array([312] * 8)
+    y_0 = np.array([156] * 8)
+    y_neg = np.array([0] * 8)
+    seg_width = np.array([216] * 8)
+    return PostureStruct(xs=xs, y_pos=y_pos, y_neg=y_neg, y_0=y_0, seg_width=seg_width)

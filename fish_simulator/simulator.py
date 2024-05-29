@@ -1,8 +1,5 @@
 """Module pull all functionality and generates the images and videos"""
-import os
-import itertools
 from pathlib import Path
-import tempfile
 from typing import List, Dict, Tuple, Callable
 from tqdm import trange
 from numpy.typing import NDArray
@@ -10,16 +7,19 @@ import numpy as np
 from scipy.interpolate import interp1d
 from cycler import cycler
 import matplotlib.pyplot as plt
-from matplotlib import transforms
 from matplotlib import colormaps
+from skimage.transform import PiecewiseAffineTransform, warp
 
 from fish_simulator.transforms import (
     interpolate_keypoints,
-    compute_angles_from_keypoints,
     convert_tail_angle_to_keypoints,
     KeypointStruct,
 )
-from fish_simulator.image_loader import ImageLoader, PostureStruct
+from fish_simulator.image_loader import (
+    ImageLoader,
+    PostureStruct,
+    make_pixel_posture_struct,
+)
 from fish_simulator.utils import (
     orientate_data,
     make_dir,
@@ -28,13 +28,26 @@ from fish_simulator.utils import (
     grey_to_black_cycler,
 )
 
+IMAGE_PATH = (
+            "templates/template_img2/"
+            "segs/"
+            )
 
-def run(data: NDArray, plot_func: Callable, dir: str, vid_fp: str, **kwargs):
-    intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(data)
+image_loader = ImageLoader(Path(Path(__file__).parent, IMAGE_PATH))
+
+def run(data: NDArray, plot_func: Callable, dir: str, vid_fp: str, n_intp_segs: int=49, img_kwargs: Dict[float, float]={"body_to_tail_mm": 0.5, "tail_to_tail_mm": 0.32,}, **kwargs):
+    # intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(data, *args)
+    if plot_func in [plot_tail_image, plot_tail_image_with_trace]:
+        posture_struct = make_pixel_posture_struct()
+    else:
+        posture_struct = PostureStruct()  # or whatever the default is
+
+    intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(-1*data, posture_struct, n_intp_segs, img_kwargs=img_kwargs)
     plot_func(data, low_xy, intp_xy, upp_xy, dir, **kwargs)
     if vid_fp is not None:
         vid_fp = Path(vid_fp)
         make_video(dir, vid_fp)
+
     pass
 
 
@@ -42,6 +55,7 @@ def generate_skeletal_postures(
     data: NDArray,
     posture_struct: PostureStruct = PostureStruct(),
     intp_n_segs: int = 30,
+    img_kwargs: Dict[float, float] = {"body_to_tail_mm": 0.5, "tail_to_tail_mm": 0.32,},
 ) -> Tuple[NDArray, Tuple[NDArray, NDArray], NDArray]:
     """Generate skeletal postures based on input data.
 
@@ -59,13 +73,15 @@ def generate_skeletal_postures(
     """
     data, (tps, n_dims) = orientate_data(data)
 
+    onset = 0 if img_kwargs['body_to_tail_mm'] == 0.5 else img_kwargs['body_to_tail_mm']
+    print("onset", onset)
+
     # convert x-y pos
     tail_x, tail_y = convert_tail_angle_to_keypoints(
-        body_xy=np.zeros((tps, 2)),
+        body_xy=np.full((tps, 2), onset),
         body_angle=np.zeros(tps),
         tail_angle=data * -1.2,  # scale factor to account for tail tip
-        body_to_tail_mm=0.5,
-        tail_to_tail_mm=0.32,
+        **img_kwargs,
     )
 
     # interpolate x-y pos
@@ -95,6 +111,128 @@ def generate_skeletal_postures(
     low_xy = intp_xy + (n_xy * intp_seg_width / 2)
 
     return intp_xy, (low_xy, upp_xy), n_xy
+
+
+def plot_tail_image(
+    trace_data: NDArray,
+    lower: NDArray,
+    center: NDArray,
+    upper: NDArray,
+    f_path: str,
+    fps=700,
+    line_wid=1,
+):
+    print("Entered plot_tail_image")
+    f_path = make_dir(f_path)
+    trace_data, (tps, n_dims) = orientate_data(trace_data)
+    # set frame boundary
+    threshold = np.max(np.abs(center[1]))
+    time_ms = np.arange(tps) * 1000 / fps
+    n_segs = lower.shape[-1]
+
+    # concatenate image segments
+    template_data = image_loader.return_zf_img()
+    head = template_data['head']
+    seg_imgs = np.flipud(np.concatenate(template_data['segs'], axis=1))
+    y_len, x_len = seg_imgs.shape[:2]
+
+    # define base image coords
+    top = np.c_[np.r_[0,np.arange(0,x_len, 27)], np.full(49,y_len)]
+    mid = np.c_[np.r_[0,np.arange(0,x_len, 27)], np.full(49,y_len//2)]
+    bot = np.c_[np.r_[0,np.arange(0,x_len, 27)], np.zeros(49)]
+    src = np.r_[top[:-1], mid[:-1], bot[:-1]]
+
+    for t_ in trange(tps):
+        # warped coords
+        dst = np.r_[lower[:,t_,:].T[:-1], center[:,t_,:].T[:-1], upper[:,t_,:].T[:-1]]
+        x_range, y_range = int(np.ceil(np.max(dst[:, 1]))), int(np.ceil(np.max(dst[:, 0])))
+        # apply transform
+        tform = PiecewiseAffineTransform()
+        tform.estimate(src[1::3], dst[1::3])
+        warped = warp(seg_imgs, tform.inverse, output_shape=(x_range, y_range))
+        
+        
+        fig, ax_posture = plt.subplots(dpi=200)
+        ax_posture.imshow(warped, cmap=plt.cm.gray, origin='lower',)
+        ax_posture.imshow(head, cmap=plt.cm.gray, extent=[-552,28,25,285])
+        ax_posture.set(
+            xlim=(-600, x_len),
+            ylim=(-x_len, x_len),
+            yticks=[], 
+            xticks=[],
+        )
+        # ax_posture.spines[["left", "right", "top", "bottom"]].set_visible(False)
+        ax_posture.axis('off')
+
+        fig.tight_layout()
+        fig.savefig(f"{f_path}/{t_:05}.png", dpi=150)
+        plt.close(fig)
+    pass
+    
+
+def plot_tail_image_with_trace(
+    trace_data: NDArray,
+    lower: NDArray,
+    center: NDArray,
+    upper: NDArray,
+    f_path: str,
+    fps=700,
+    line_wid=1,
+):
+    print("Entered plot_tail_image")
+    f_path = make_dir(f_path)
+    trace_data, (tps, n_dims) = orientate_data(trace_data)
+    # set frame boundary
+    threshold = np.max(np.abs(center[1]))
+    time_ms = np.arange(tps) * 1000 / fps
+    n_segs = lower.shape[-1]
+
+    # concatenate image segments
+    template_data = image_loader.return_zf_img()
+    head = template_data['head']
+    seg_imgs = np.flipud(np.concatenate(template_data['segs'], axis=1))
+    y_len, x_len = seg_imgs.shape[:2]
+
+    # define base image coords
+    top = np.c_[np.r_[0,np.arange(0,x_len, 27)], np.full(49,y_len)]
+    mid = np.c_[np.r_[0,np.arange(0,x_len, 27)], np.full(49,y_len//2)]
+    bot = np.c_[np.r_[0,np.arange(0,x_len, 27)], np.zeros(49)]
+    src = np.r_[top[:-1], mid[:-1], bot[:-1]]
+
+    for t_ in trange(tps):
+        # warped coords
+        dst = np.r_[lower[:,t_,:].T[:-1], center[:,t_,:].T[:-1], upper[:,t_,:].T[:-1]]
+        x_range, y_range = int(np.ceil(np.max(dst[:, 1]))), int(np.ceil(np.max(dst[:, 0])))
+        # apply transform
+        tform = PiecewiseAffineTransform()
+        tform.estimate(src[1::3], dst[1::3])
+        warped = warp(seg_imgs, tform.inverse, output_shape=(x_range, y_range))
+        
+        fig, (ax_trace, ax_posture) = plt.subplots(1, 2, figsize=(8, 4), dpi=200)
+        # fish_trace
+        ax_trace.set_title(f_path.stem)
+        ax_trace.set_prop_cycle(grey_to_black_cycler)
+        ax_trace.plot(time_ms[:t_], trace_data[:t_], alpha=1)
+        ax_trace.set_xlim(0, time_ms[-1])
+        ax_trace.set_ylim(-2.4, 4.0)
+        ax_trace.set_xticks([])
+        ax_trace.set_yticks([])
+        # ax_trace.spines[['right', 'top']].set_visible(True)
+        ax_trace.set_axis_off()
+        ax_posture.imshow(warped, cmap=plt.cm.gray, origin='lower',)
+        ax_posture.imshow(head, cmap=plt.cm.gray, extent=[-552,28,25,285])
+        ax_posture.set(
+            xlim=(-600, x_len),
+            ylim=(-x_len, x_len),
+            yticks=[], 
+            xticks=[],
+        )
+        ax_posture.axis('off')
+
+        fig.tight_layout()
+        fig.savefig(f"{f_path}/{t_:05}.png", dpi=150)
+        plt.close(fig)
+    pass
 
 
 def plot_skeletal_postures_with_trace(
@@ -212,7 +350,7 @@ def plot_skeletal_postures(
         )
         ax_posture.axes.set_aspect("equal")
 
-        ax_posture.spines[["left", "right", "top", "bottom"]].set_visible(False)
+        # ax_posture.spines[["left", "right", "top", "bottom"]].set_visible(False)
         ax_posture.set(yticks=[], xticks=[], ylim=[-threshold, threshold], xlim=[-3, 1])
         fig.savefig(f"{f_path}/{t_:05}.png", dpi=350)
         plt.close(fig)
@@ -282,14 +420,28 @@ def plot_bout_elapse(
 
 
 if __name__ == "__main__":
+    data_name = "swim01"
     data_arr = np.load(
-        "/Users/thomasmullen/VSCodeProjects/fish_simulator/test/fixtures/swim01.npy"
+        f"/Users/thomasmullen/VSCodeProjects/fish_simulator/test/fixtures/{data_name}.npy"
     )
+    # test posture animation
     run(
         data_arr,
         plot_func=plot_skeletal_postures_with_trace,
         dir="/Users/thomasmullen/VSCodeProjects/fish_simulator/dump/plts",
-        vid_fp="/Users/thomasmullen/VSCodeProjects/fish_simulator/dump/run_test.mp4",
+        vid_fp=f"/Users/thomasmullen/VSCodeProjects/fish_simulator/dump/run_test_{data_name}.mp4",
+        n_intp_segs=30,
+        line_wid=1,
+    )
+    # test tail animation
+    run(
+        data_arr,
+        plot_func=plot_tail_image_with_trace,
+        # plot_func=plot_tail_image,
+        dir="/Users/thomasmullen/VSCodeProjects/fish_simulator/dump/plts",
+        vid_fp=f"/Users/thomasmullen/VSCodeProjects/fish_simulator/dump/run_test_tail_trace_{data_name}.mp4",
+        n_intp_segs=48,
+        img_kwargs={"body_to_tail_mm": 156.3, "tail_to_tail_mm": -181.3},
         line_wid=1,
     )
 
