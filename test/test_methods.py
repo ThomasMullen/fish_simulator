@@ -30,7 +30,7 @@ class TestImageLoader(unittest.TestCase):
         """Test the default directory is valid"""
         print("Running test_default_dir is true")
         self.assertEqual(
-            "fish_simulator/template_img/segs" in str(self.img_loader_default.seg_dir),
+            "fish_simulator/templates/template_img2/segs" in str(self.img_loader_default.seg_dir),
             True,
         )
 
