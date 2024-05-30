@@ -43,6 +43,17 @@ def run(
     },
     **kwargs,
 ):
+    """Runs the fish simulator.
+
+    Args:
+        data (NDArray): The input data.
+        plot_func (Callable): The plotting function to use.
+        dir (str): The directory to save the output files.
+        vid_fp (str): The file path to save the video.
+        n_intp_segs (int, optional): The number of interpolation segments. Defaults to 49.
+        img_kwargs (Dict[float, float], optional): The image keyword arguments. Defaults to {"body_to_tail_mm": 0.5, "tail_to_tail_mm": 0.32}.
+        **kwargs: Additional keyword arguments for the plotting function.
+    """
     # intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(data, *args)
     if plot_func in [plot_tail_image, plot_tail_image_with_trace]:
         posture_struct = make_pixel_posture_struct()
@@ -136,7 +147,20 @@ def plot_tail_image(
     fps=700,
     line_wid=1,
 ):
-    print("Entered plot_tail_image")
+    """Plot tail images based on trace data.
+
+    This function takes in trace data along with lower, center, and upper coordinates
+    and generates tail images by warping a base image using the provided coordinates.
+
+    Args:
+        trace_data (NDArray): The trace data of the fish.
+        lower (NDArray): The lower coordinates of the fish tail.
+        center (NDArray): The center coordinates of the fish tail.
+        upper (NDArray): The upper coordinates of the fish tail.
+        f_path (str): The file path to save the generated images.
+        fps (int, optional): The frames per second for the animation. Defaults to 700.
+        line_wid (int, optional): The line width of the tail. Defaults to 1.
+    """
     f_path = make_dir(f_path)
     trace_data, (tps, n_dims) = orientate_data(trace_data)
     n_segs = lower.shape[-1]
@@ -198,7 +222,19 @@ def plot_tail_image_with_trace(
     fps=700,
     line_wid=1,
 ):
-    print("Entered plot_tail_image")
+    """Plot tail image with trace.
+
+    This function plots the tail image with the corresponding trace data. It applies a transformation to the tail image based on the lower, center, and upper coordinates. It saves the resulting images as PNG files.
+
+    Args:
+        trace_data (NDArray): The trace data.
+        lower (NDArray): The lower coordinates.
+        center (NDArray): The center coordinates.
+        upper (NDArray): The upper coordinates.
+        f_path (str): The file path to save the images.
+        fps (int, optional): The frames per second. Defaults to 700.
+        line_wid (int, optional): The line width. Defaults to 1.
+    """
     f_path = make_dir(f_path)
     trace_data, (tps, n_dims) = orientate_data(trace_data)
     time_ms = np.arange(tps) * 1000 / fps
@@ -442,30 +478,3 @@ def plot_bout_elapse(
             dpi=350,
             bbox_inches="tight",
         )
-
-
-if __name__ == "__main__":
-    data_name = "swim01"
-    data_arr = np.load(
-        f"/Users/thomasmullen/VSCodeProjects/fish_simulator/test/fixtures/{data_name}.npy"
-    )
-    # test posture animation
-    run(
-        data_arr,
-        plot_func=plot_skeletal_postures_with_trace,
-        dir="/Users/thomasmullen/VSCodeProjects/fish_simulator/dump/plts",
-        vid_fp=f"/Users/thomasmullen/VSCodeProjects/fish_simulator/dump/run_test_{data_name}.mp4",
-        n_intp_segs=30,
-        line_wid=1,
-    )
-    # test tail animation
-    run(
-        data_arr,
-        plot_func=plot_tail_image_with_trace,
-        # plot_func=plot_tail_image,
-        dir="/Users/thomasmullen/VSCodeProjects/fish_simulator/dump/plts",
-        vid_fp=f"/Users/thomasmullen/VSCodeProjects/fish_simulator/dump/run_test_tail_trace_{data_name}.mp4",
-        n_intp_segs=40,
-        img_kwargs={"body_to_tail_mm": 156.3, "tail_to_tail_mm": -181.3},
-        line_wid=1,
-    )

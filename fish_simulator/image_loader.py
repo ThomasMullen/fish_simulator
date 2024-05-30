@@ -6,9 +6,7 @@ import numpy as np
 from numpy.typing import NDArray
 from PIL import Image
 
-TAIL_PATH = Path(
-    Path(__file__).parent, "templates", "template_img", "segs", "tail.png"
-)
+TAIL_PATH = Path(Path(__file__).parent, "templates", "template_img", "segs", "tail.png")
 HEAD_PATH = Path(Path(__file__).parent, "templates", "template_img", "head.png")
 TAIL_IMG = np.flipud(np.asarray(Image.open(TAIL_PATH)))
 HEAD_IMG = np.asarray(Image.open(HEAD_PATH))
