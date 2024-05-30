@@ -1,0 +1,6 @@
+# MANIFEST.in -- just for illustration
+graft fish_simulator
+graft examples
+graft tests
+
+include **/*.png
