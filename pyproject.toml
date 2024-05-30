@@ -31,7 +31,7 @@ classifiers = [
 ]
 
 [tool.setuptools]
-#packages = ["fish_simulator", "test"]
+#packages = ["fish_simulator", "fish_simulator.templates", "test"]
 #package-dir = {"" = "fish_simulator"}
 
 [tool.setuptools.packages]
