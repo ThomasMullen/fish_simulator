@@ -1,6 +1,6 @@
 """Module pull all functionality and generates the images and videos"""
 from pathlib import Path
-from typing import List, Dict, Tuple, Callable
+from typing import Dict, Tuple, Callable
 from tqdm import trange
 from numpy.typing import NDArray
 import numpy as np
@@ -18,7 +18,6 @@ from fish_simulator.transforms import (
 from fish_simulator.image_loader import (
     HEAD_IMG,
     TAIL_IMG,
-    ImageLoader,
     PostureStruct,
     make_pixel_posture_struct,
 )
@@ -26,7 +25,6 @@ from fish_simulator.utils import (
     orientate_data,
     make_dir,
     make_video,
-    make_color_cycle,
     grey_to_black_cycler,
 )
 
@@ -51,7 +49,8 @@ def run(
         dir (str): The directory to save the output files.
         vid_fp (str): The file path to save the video.
         n_intp_segs (int, optional): The number of interpolation segments. Defaults to 49.
-        img_kwargs (Dict[float, float], optional): The image keyword arguments. Defaults to {"body_to_tail_mm": 0.5, "tail_to_tail_mm": 0.32}.
+        img_kwargs (Dict[float, float], optional): The image keyword arguments. Defaults to
+        {"body_to_tail_mm": 0.5, "tail_to_tail_mm": 0.32}.
         **kwargs: Additional keyword arguments for the plotting function.
     """
     # intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(data, *args)
@@ -82,19 +81,22 @@ def generate_skeletal_postures(
 ) -> Tuple[NDArray, Tuple[NDArray, NDArray], NDArray]:
     """Generate skeletal postures based on input data.
 
-    This function takes in input data, file path, posture structure, and the number of interpolation segments as parameters.
-    It generates skeletal postures by performing various calculations and interpolations on the input data.
+    This function takes in input data, file path, posture structure, and the number of
+    interpolation segments as parameters. It generates skeletal postures by performing various
+    calculations and interpolations on the input data.
 
     Args:
         data (NDArray): The input data.
         f_path (str): The file path.
-        posture_struct (PostureStruct, optional): The posture structure. Defaults to PostureStruct().
+        posture_struct (PostureStruct, optional): The posture structure. Defaults to 
+            PostureStruct().
         intp_n_segs (int, optional): The number of interpolation segments. Defaults to 30.
 
     Returns:
-        Tuple[NDArray, Tuple[NDArray, NDArray], NDArray]: A tuple containing the interpolated x-y positions, the lower and upper positions, and the normal directions.
+        Tuple[NDArray, Tuple[NDArray, NDArray], NDArray]: A tuple containing the interpolated x-y
+            positions, the lower and upper positions, and the normal directions.
     """
-    data, (tps, n_dims) = orientate_data(data)
+    data, (tps, _) = orientate_data(data)
 
     onset = (
         0 if img_kwargs["body_to_tail_mm"] == 0.5 else 171
@@ -144,8 +146,6 @@ def plot_tail_image(
     center: NDArray,
     upper: NDArray,
     f_path: str,
-    fps=700,
-    line_wid=1,
 ):
     """Plot tail images based on trace data.
 
@@ -162,7 +162,7 @@ def plot_tail_image(
         line_wid (int, optional): The line width of the tail. Defaults to 1.
     """
     f_path = make_dir(f_path)
-    trace_data, (tps, n_dims) = orientate_data(trace_data)
+    trace_data, (tps, _) = orientate_data(trace_data)
     n_segs = lower.shape[-1]
 
     y_len, x_len = TAIL_IMG.shape[:2]
@@ -204,13 +204,11 @@ def plot_tail_image(
             yticks=[],
             xticks=[],
         )
-        # ax_posture.spines[["left", "right", "top", "bottom"]].set_visible(False)
         ax_posture.axis("off")
 
         fig.tight_layout()
         fig.savefig(f"{f_path}/{t_:05}.png", dpi=150)
         plt.close(fig)
-    pass
 
 
 def plot_tail_image_with_trace(
@@ -224,7 +222,9 @@ def plot_tail_image_with_trace(
 ):
     """Plot tail image with trace.
 
-    This function plots the tail image with the corresponding trace data. It applies a transformation to the tail image based on the lower, center, and upper coordinates. It saves the resulting images as PNG files.
+    This function plots the tail image with the corresponding trace data. It applies a 
+    transformation to the tail image based on the lower, center, and upper coordinates. It saves
+    the resulting images as PNG files.
 
     Args:
         trace_data (NDArray): The trace data.
@@ -236,7 +236,7 @@ def plot_tail_image_with_trace(
         line_wid (int, optional): The line width. Defaults to 1.
     """
     f_path = make_dir(f_path)
-    trace_data, (tps, n_dims) = orientate_data(trace_data)
+    trace_data, (tps, _) = orientate_data(trace_data)
     time_ms = np.arange(tps) * 1000 / fps
     n_segs = lower.shape[-1]
     y_len, x_len = TAIL_IMG.shape[:2]
@@ -269,7 +269,7 @@ def plot_tail_image_with_trace(
         # fish_trace
         ax_trace.set_title(f_path.stem)
         ax_trace.set_prop_cycle(grey_to_black_cycler)
-        ax_trace.plot(time_ms[:t_], trace_data[:t_], alpha=1)
+        ax_trace.plot(time_ms[:t_], trace_data[:t_], alpha=1, lw=line_wid)
         ax_trace.set_xlim(0, time_ms[-1])
         ax_trace.set_ylim(-2.4, 4.0)
         ax_trace.set_xticks([])
@@ -293,7 +293,6 @@ def plot_tail_image_with_trace(
         fig.tight_layout()
         fig.savefig(f"{f_path}/{t_:05}.png", dpi=150)
         plt.close(fig)
-    pass
 
 
 def plot_skeletal_postures_with_trace(
@@ -306,8 +305,23 @@ def plot_skeletal_postures_with_trace(
     fps=700,
     line_wid=2,
 ):
+    """Plot skeletal postures with trace.
+
+    This function plots the skeletal postures with a trace based on the given data.
+
+    Args:
+        trace_data (NDArray): The trace data.
+        lower (NDArray): The lower skeletal data.
+        center (NDArray): The center skeletal data.
+        upper (NDArray): The upper skeletal data.
+        f_path (str): The file path to save the plots.
+        posture_struct (PostureStruct, optional): The posture structure. Defaults to 
+        PostureStruct()
+        fps (int, optional): The frames per second. Defaults to 700.
+        line_wid (int, optional): The line width. Defaults to 2.
+    """
     f_path = make_dir(f_path)
-    trace_data, (tps, n_dims) = orientate_data(trace_data)
+    trace_data, (tps, _) = orientate_data(trace_data)
     # set frame boundary
     threshold = np.max(np.abs(center[1]))
     time_ms = np.arange(tps) * 1000 / fps
@@ -360,8 +374,6 @@ def plot_skeletal_postures_with_trace(
         fig.savefig(f"{f_path}/{t_:05}.png", dpi=350)
         plt.close(fig)
 
-    pass
-
 
 def plot_skeletal_postures(
     trace_data: NDArray,
@@ -370,14 +382,27 @@ def plot_skeletal_postures(
     upper: NDArray,
     f_path: str,
     posture_struct: PostureStruct = PostureStruct(),
-    fps=700,
     line_wid=2,
 ):
+    """Plot skeletal postures.
+
+    This function plots the skeletal postures based on the given trace data and skeletal structure
+    It saves the plots as PNG images in the specified file path.
+
+    Args:
+        trace_data (NDArray): The trace data representing the fish's movement.
+        lower (NDArray): The lower skeletal structure.
+        center (NDArray): The center skeletal structure.
+        upper (NDArray): The upper skeletal structure.
+        f_path (str): The file path to save the plots.
+        posture_struct (PostureStruct, optional): The posture structure. Defaults to 
+        PostureStruct().
+        line_wid (int, optional): The line width of the plots. Defaults to 2.
+    """
     f_path = make_dir(f_path)
-    trace_data, (tps, n_dims) = orientate_data(trace_data)
+    trace_data, (tps, _) = orientate_data(trace_data)
     # set frame boundary
     threshold = np.max(np.abs(center[1]))
-    time_ms = np.arange(tps) * 1000 / fps
     n_segs = lower.shape[-1]
 
     for t_ in trange(tps):
@@ -415,7 +440,6 @@ def plot_skeletal_postures(
         ax_posture.set(yticks=[], xticks=[], ylim=[-threshold, threshold], xlim=[-3, 1])
         fig.savefig(f"{f_path}/{t_:05}.png", dpi=350)
         plt.close(fig)
-    pass
 
 
 def plot_bout_elapse(
@@ -442,7 +466,7 @@ def plot_bout_elapse(
     # file_path
     f_path = Path(f_path, "elapse.png")
     # define number of timepoints
-    trace_data, (tps, n_dims) = orientate_data(trace_data)
+    trace_data, (tps, _) = orientate_data(trace_data)
     # make color cycle through time
     threshold = np.max(np.abs(center[1]))
     colors = colormaps["gray"](np.linspace(0.99, 0.05, tps // t_step))

@@ -57,6 +57,25 @@ class ImageLoader:
 
 @dataclass
 class PostureStruct:
+    """A class representing the posture structure of a fish.
+
+    This class contains attributes that define the dimensions and positions of different body parts of a fish.
+
+    Attributes:
+        seg_width (np.ndarray): An array representing the widths of different segments of the fish's body.
+        head_width (np.ndarray): An array representing the widths of different segments of the fish's head.
+        head_len (float): The length of the fish's head.
+        body_to_tail (float): The ratio of the fish's body length to its tail length.
+        head_xs (np.ndarray): An array representing the x-coordinates of the fish's head segments.
+        h_y0 (np.ndarray): An array representing the y-coordinates of the fish's head segments.
+        hy_pos (np.ndarray): An array representing the positive y-offsets of the fish's head segments.
+        hy_neg (np.ndarray): An array representing the negative y-offsets of the fish's head segments.
+        n_segs (int): The number of segments in the fish's body.
+        xs (np.ndarray): An array representing the x-coordinates of the fish's body segments.
+        y_0 (np.ndarray): An array representing the y-coordinates of the fish's body segments.
+        y_pos (np.ndarray): An array representing the positive y-offsets of the fish's body segments.
+        y_neg (np.ndarray): An array representing the negative y-offsets of the fish's body segments.
+    """
     seg_width: np.ndarray = field(
         default_factory=lambda: np.array(
             [3.871, 3.517, 3.192, 2.772, 2.394, 1.832, 1.3, 0.0]
