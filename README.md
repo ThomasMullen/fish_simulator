@@ -16,8 +16,6 @@ These sets of coordinates will then transform slices of the zebrafish image, pro
 
 Animations of the larval zebrafish postures are warped using a piece wise affine transformation using the interpolated x-y coordinates.
 
-This is the fish template
-![fish_template](/Users/thomasmullen/VSCodeProjects/fish_simulator/fish_imgs/fish.png)
 
 ## Package installation
 
@@ -58,9 +56,17 @@ Check it is installed by running `which ffmpeg` in the terminal. More details ca
 
 ### Dependencies
 
+## Default Fish animation
+
+![fish_ani_template](https://github.com/ThomasMullen/fish_simulator/fish_imgs/fish_animate.png)
+
+
 ## Default Fish image
 
-![zebrafish_example](fish_simulator/fish_imgs/example_sim.gif)
+![fish_template](https://github.com/ThomasMullen/fish_simulator/fish_imgs/fish.png)
+
+
+![zebrafish_example](https://github.com/ThomasMullen/fish_simulator/fish_imgs/example_sim.gif)
 
 ## Example
 

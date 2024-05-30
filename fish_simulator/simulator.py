@@ -366,7 +366,7 @@ def plot_skeletal_postures_with_trace(
         )
         ax_posture.axes.set_aspect("equal")
 
-        ax_posture.spines[["left", "right", "top", "bottom"]].set_visible(False)
+        ax_posture.axis("off")
         ax_posture.set(yticks=[], xticks=[], ylim=[-threshold, threshold], xlim=[-3, 1])
         fig.savefig(f"{f_path}/{t_:05}.png", dpi=350)
         plt.close(fig)
@@ -433,7 +433,7 @@ def plot_skeletal_postures(
         )
         ax_posture.axes.set_aspect("equal")
 
-        # ax_posture.spines[["left", "right", "top", "bottom"]].set_visible(False)
+        ax_posture.axis("off")
         ax_posture.set(yticks=[], xticks=[], ylim=[-threshold, threshold], xlim=[-3, 1])
         fig.savefig(f"{f_path}/{t_:05}.png", dpi=350)
         plt.close(fig)
