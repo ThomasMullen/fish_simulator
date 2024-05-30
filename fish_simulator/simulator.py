@@ -32,7 +32,7 @@ from fish_simulator.utils import (
 def run(
     data: NDArray,
     plot_func: Callable,
-    dir: str,
+    png_dir: str,
     vid_fp: str,
     n_intp_segs: int = 49,
     img_kwargs: Dict[float, float] = {
@@ -46,7 +46,7 @@ def run(
     Args:
         data (NDArray): The input data.
         plot_func (Callable): The plotting function to use.
-        dir (str): The directory to save the output files.
+        png_dir (str): The directory to save the output files.
         vid_fp (str): The file path to save the video.
         n_intp_segs (int, optional): The number of interpolation segments. Defaults to 49.
         img_kwargs (Dict[float, float], optional): The image keyword arguments. Defaults to
@@ -62,12 +62,10 @@ def run(
     intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(
         -1 * data, posture_struct, n_intp_segs, img_kwargs=img_kwargs
     )
-    plot_func(data, low_xy, intp_xy, upp_xy, dir, **kwargs)
+    plot_func(data, low_xy, intp_xy, upp_xy, png_dir, **kwargs)
     if vid_fp is not None:
         vid_fp = Path(vid_fp)
-        make_video(dir, vid_fp)
-
-    pass
+        make_video(png_dir, vid_fp)
 
 
 def generate_skeletal_postures(
@@ -136,7 +134,6 @@ def generate_skeletal_postures(
     # update upper and lower pos
     upp_xy = intp_xy - (n_xy * intp_seg_width / 2)
     low_xy = intp_xy + (n_xy * intp_seg_width / 2)
-
     return intp_xy, (low_xy, upp_xy), n_xy
 
 
