@@ -62,16 +62,24 @@ Check it is installed by running `which ffmpeg` in the terminal. More details ca
 
 ## Default Fish animation
 
-![fish_ani_template](https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/fish_animate.png?raw=true)
+<p align="center">
+  <img src="https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/fish_animate.png?raw=true" alt="drawing" width="200"/>
+</p>
 
-![zebrafish_example](https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/example_anim.gif?raw=true)
+<p align="center">
+  <img src="https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/example_anim.gif?raw=true" alt="drawing" width="200"/>
+</p>
+
 
 ## Default Fish image
 
-![fish_template](https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/fish.png?raw=true)
+<p align="center">
+  <img src="https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/fish.png?raw=true" alt="drawing" width="200"/>
+</p>
 
-
-![zebrafish_example](https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/example_img.gif?raw=true)
+<p align="center">
+  <img src="https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/example_img.gif?raw=true" alt="drawing" width="200"/>
+</p>
 
 
 ## Example
