@@ -264,15 +264,16 @@ def plot_tail_image_with_trace(
 
         fig, (ax_trace, ax_posture) = plt.subplots(1, 2, figsize=(8, 4), dpi=200)
         # fish_trace
-        ax_trace.set_title(f_path.stem)
-        ax_trace.set_prop_cycle(grey_to_black_cycler)
         ax_trace.plot(time_ms[:t_], trace_data[:t_], alpha=1, lw=line_wid)
-        ax_trace.set_xlim(0, time_ms[-1])
-        ax_trace.set_ylim(-2.4, 4.0)
-        ax_trace.set_xticks([])
-        ax_trace.set_yticks([])
-        # ax_trace.spines[['right', 'top']].set_visible(True)
+        ax_trace.set(
+            xlim=(0, time_ms[-1]),
+            ylim=(-2.4, 4.0),
+            xticks=[],
+            yticks=[],
+        )
+        ax_trace.set_prop_cycle(grey_to_black_cycler)
         ax_trace.set_axis_off()
+        # plot image posture
         ax_posture.imshow(
             warped,
             cmap=plt.cm.gray,
@@ -327,16 +328,16 @@ def plot_skeletal_postures_with_trace(
     for t_ in trange(tps):
         fig, (ax_trace, ax_posture) = plt.subplots(1, 2, figsize=(8, 4), dpi=400)
         # fish_trace
-        ax_trace.set_title(f_path.stem)
-        ax_trace.set_prop_cycle(grey_to_black_cycler)
         ax_trace.plot(time_ms[:t_], trace_data[:t_], alpha=1)
-        ax_trace.set_xlim(0, time_ms[-1])
-        ax_trace.set_ylim(-2.4, 4.0)
-        ax_trace.set_xticks([])
-        ax_trace.set_yticks([])
-        # ax_trace.spines[['right', 'top']].set_visible(True)
+        ax_trace.set(
+            xlim=(0, time_ms[-1]),
+            ylim=(-2.4, 4.0),
+            xticks=[],
+            yticks=[],
+        )
+        ax_trace.set_prop_cycle(grey_to_black_cycler)
         ax_trace.set_axis_off()
-
+        # plot posture
         ax_posture.plot(upper[0, t_, :], upper[1, t_, :], c="k", lw=line_wid)
         ax_posture.plot(center[0, t_, :], center[1, t_, :], c="k", lw=line_wid)
         ax_posture.plot(lower[0, t_, :], lower[1, t_, :], c="k", lw=line_wid)
