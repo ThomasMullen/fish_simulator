@@ -4,6 +4,7 @@
 ![PythonPackage](https://github.com/ThomasMullen/zf_animator_tsm/actions/workflows/python-package.yml/badge.svg)
 ![PythonPublish](https://github.com/ThomasMullen/zf_animator_tsm/actions/workflows/python-publish.yml/badge.svg)
 ![PyPI version](https://badge.fury.io/py/fish-simulator.svg)
+[![DOI](https://zenodo.org/badge/683316671.svg)](https://zenodo.org/doi/10.5281/zenodo.11406458)
 
 Python toolbox to transform zebrafish tracking data to tail animations
 
