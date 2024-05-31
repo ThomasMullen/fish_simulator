@@ -32,7 +32,11 @@ cd path/to/save/package
 git clone clone-latest-tag git@github.com:ThomasMullen/fish_simulator.git
 cd ./fish_simulator
 python -m build
-pip install -e .
+# go to working project
+cd path/to/work/project
+# acivate venv
+source my_virtual_env/bin/activate
+pip install -e path/to/save/package
 ```
 
 ## Requires `ffmpeg`
@@ -60,13 +64,14 @@ Check it is installed by running `which ffmpeg` in the terminal. More details ca
 
 ![fish_ani_template](https://github.com/ThomasMullen/fish_simulator/fish_imgs/fish_animate.png)
 
+![zebrafish_example](https://github.com/ThomasMullen/fish_simulator/fish_imgs/example_anim.gif)
 
 ## Default Fish image
 
 ![fish_template](https://github.com/ThomasMullen/fish_simulator/fish_imgs/fish.png)
 
+![zebrafish_example](https://github.com/ThomasMullen/fish_simulator/fish_imgs/example_img.gif)
 
-![zebrafish_example](https://github.com/ThomasMullen/fish_simulator/fish_imgs/example_sim.gif)
 
 ## Example
 
@@ -103,13 +108,23 @@ from fish_simulator import run, plot_tail_image_with_trace, plot_tail_image
 
 run(
     data_arr,
-    plot_func=plot_tail_image_with_trace,
     # plot_func=plot_tail_image,
+    plot_func=plot_tail_image_with_trace,
     dir="path/to/dir/plts",
     vid_fp="path/to/video/anim.mp4",
-    n_intp_segs=40,
-    img_kwargs={"body_to_tail_mm": 156.3, "tail_to_tail_mm": -181.3},
-    line_wid=1,
+)
+```
+
+Generate a video from collections of `.png` files
+
+```python
+from utils import make_video
+
+make_video(
+    png_dir="path/to/png/files/",
+    vid_fname="path/to/video/anim.mp4", 
+    framerate=70,
+    keep_pngs=True
 )
 ```
 
@@ -117,12 +132,5 @@ run(
 Your browser does not support the video tag.
 </video>
 
-### Generate a simulation of the fish tail posture
-
-```python
-from fish_simulator.simulator import make_posture_simulation, make_video
-make_posture_simulation(data=tail_angle_data, n_segments=30, png_dir="dir/to/save/png_files")
-make_video(png_dir="dir/to/save/png_files", vid_fname="file/path/of/generated_vid.mp4")
-```
 
 ## Key Functions

@@ -34,11 +34,7 @@ def run(
     plot_func: Callable,
     png_dir: str,
     vid_fp: str,
-    n_intp_segs: int = 49,
-    img_kwargs: Dict[float, float] = {
-        "body_to_tail_mm": 0.5,
-        "tail_to_tail_mm": 0.32,
-    },
+    keep_pngs: bool = True,
     **kwargs,
 ):
     """Runs the fish simulator.
@@ -47,25 +43,23 @@ def run(
         data (NDArray): The input data.
         plot_func (Callable): The plotting function to use.
         png_dir (str): The directory to save the output files.
-        vid_fp (str): The file path to save the video.
-        n_intp_segs (int, optional): The number of interpolation segments. Defaults to 49.
-        img_kwargs (Dict[float, float], optional): The image keyword arguments. Defaults to
-        {"body_to_tail_mm": 0.5, "tail_to_tail_mm": 0.32}.
+        vid_fp (str): The file path to save the video, include ".mp4".
+        keep_pngs (bool, optional): Whether to keep the PNG files. Defaults to True.
         **kwargs: Additional keyword arguments for the plotting function.
     """
+    png_dir = make_dir(png_dir)
     # intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(data, *args)
     if plot_func in [plot_tail_image, plot_tail_image_with_trace]:
         posture_struct = make_pixel_posture_struct()
+        intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(-1 * data, posture_struct, intp_n_segs=40, img_kwargs={"body_to_tail_mm": 156.3, "tail_to_tail_mm": -181.3},)
     else:
         posture_struct = PostureStruct()  # or whatever the default is
+        intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(-1 * data, posture_struct, intp_n_segs=30, img_kwargs={"body_to_tail_mm": 0.5,"tail_to_tail_mm": 0.32,})
 
-    intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(
-        -1 * data, posture_struct, n_intp_segs, img_kwargs=img_kwargs
-    )
     plot_func(data, low_xy, intp_xy, upp_xy, png_dir, **kwargs)
     if vid_fp is not None:
         vid_fp = Path(vid_fp)
-        make_video(png_dir, vid_fp)
+        make_video(png_dir, vid_fp, keep_pngs=keep_pngs)
 
 
 def generate_skeletal_postures(
@@ -158,7 +152,6 @@ def plot_tail_image(
         fps (int, optional): The frames per second for the animation. Defaults to 700.
         line_wid (int, optional): The line width of the tail. Defaults to 1.
     """
-    f_path = make_dir(f_path)
     trace_data, (tps, _) = orientate_data(trace_data)
     n_segs = lower.shape[-1]
 
@@ -232,7 +225,6 @@ def plot_tail_image_with_trace(
         fps (int, optional): The frames per second. Defaults to 700.
         line_wid (int, optional): The line width. Defaults to 1.
     """
-    f_path = make_dir(f_path)
     trace_data, (tps, _) = orientate_data(trace_data)
     time_ms = np.arange(tps) * 1000 / fps
     n_segs = lower.shape[-1]
@@ -262,16 +254,16 @@ def plot_tail_image_with_trace(
         tform.estimate(src[1::3], dst[1::3])
         warped = warp(TAIL_IMG, tform.inverse, output_shape=(x_range, y_range))
 
-        fig, (ax_trace, ax_posture) = plt.subplots(1, 2, figsize=(8, 4), dpi=200)
+        fig, (ax_trace, ax_posture) = plt.subplots(1, 2, figsize=(8, 5), dpi=200)
         # fish_trace
+        ax_trace.set_prop_cycle(grey_to_black_cycler)
         ax_trace.plot(time_ms[:t_], trace_data[:t_], alpha=1, lw=line_wid)
         ax_trace.set(
             xlim=(0, time_ms[-1]),
-            ylim=(-2.4, 4.0),
+            ylim=(-np.pi*1.5, np.pi*1.5),
             xticks=[],
             yticks=[],
         )
-        ax_trace.set_prop_cycle(grey_to_black_cycler)
         ax_trace.set_axis_off()
         # plot image posture
         ax_posture.imshow(
@@ -289,7 +281,7 @@ def plot_tail_image_with_trace(
         ax_posture.axis("off")
 
         fig.tight_layout()
-        fig.savefig(f"{f_path}/{t_:05}.png", dpi=150)
+        fig.savefig(f"{f_path}/{t_:05}.png", dpi=250)
         plt.close(fig)
 
 
@@ -318,7 +310,6 @@ def plot_skeletal_postures_with_trace(
         fps (int, optional): The frames per second. Defaults to 700.
         line_wid (int, optional): The line width. Defaults to 2.
     """
-    f_path = make_dir(f_path)
     trace_data, (tps, _) = orientate_data(trace_data)
     # set frame boundary
     threshold = np.max(np.abs(center[1]))
@@ -326,16 +317,16 @@ def plot_skeletal_postures_with_trace(
     n_segs = lower.shape[-1]
 
     for t_ in trange(tps):
-        fig, (ax_trace, ax_posture) = plt.subplots(1, 2, figsize=(8, 4), dpi=400)
+        fig, (ax_trace, ax_posture) = plt.subplots(1, 2, figsize=(8, 5), dpi=200)
         # fish_trace
+        ax_trace.set_prop_cycle(grey_to_black_cycler)
         ax_trace.plot(time_ms[:t_], trace_data[:t_], alpha=1)
         ax_trace.set(
             xlim=(0, time_ms[-1]),
-            ylim=(-2.4, 4.0),
+            ylim=(-np.pi*1.5, np.pi*1.5),
             xticks=[],
             yticks=[],
         )
-        ax_trace.set_prop_cycle(grey_to_black_cycler)
         ax_trace.set_axis_off()
         # plot posture
         ax_posture.plot(upper[0, t_, :], upper[1, t_, :], c="k", lw=line_wid)
@@ -369,7 +360,7 @@ def plot_skeletal_postures_with_trace(
 
         ax_posture.axis("off")
         ax_posture.set(yticks=[], xticks=[], ylim=[-threshold, threshold], xlim=[-3, 1])
-        fig.savefig(f"{f_path}/{t_:05}.png", dpi=350)
+        fig.savefig(f"{f_path}/{t_:05}.png", dpi=250)
         plt.close(fig)
 
 
@@ -397,7 +388,6 @@ def plot_skeletal_postures(
         PostureStruct().
         line_wid (int, optional): The line width of the plots. Defaults to 2.
     """
-    f_path = make_dir(f_path)
     trace_data, (tps, _) = orientate_data(trace_data)
     # set frame boundary
     threshold = np.max(np.abs(center[1]))

@@ -4,12 +4,14 @@ from pathlib import Path
 import tempfile
 from typing import Tuple, Union
 import numpy as np
-from numpy.typing import NDArray, ArrayLike
+from numpy.typing import NDArray
+import matplotlib.colors as mc
+import colorsys
 from cycler import cycler
 import cmcrameri.cm as cmc
 
 
-grey_to_black_cycler = cycler(color=cmc.grayC(np.linspace(0.9, 0.2, 12)))
+grey_to_black_cycler = cycler(color=cmc.grayC(np.linspace(0.9, 0.1, 10)))
 
 
 def orientate_data(data: NDArray) -> Tuple[NDArray, Tuple[int, int]]:
@@ -27,6 +29,14 @@ def orientate_data(data: NDArray) -> Tuple[NDArray, Tuple[int, int]]:
 
 
 def make_dir(fp: Union[Path, str]) -> Path:
+    """Create a directory at the given file path.
+
+    Args:
+        fp (Union[Path, str]): The file path where the directory should be created.
+
+    Returns:
+        Path: The path of the created directory.
+    """
     if fp is None:
         fp = tempfile.mkdtemp()
         print(f"Tmp dir: {fp}")
@@ -36,7 +46,7 @@ def make_dir(fp: Union[Path, str]) -> Path:
     return Path(fp)
 
 
-def make_video(png_dir: str, vid_fname: str, keep_pngs: bool = True) -> None:
+def make_video(png_dir: str, vid_fname: str, framerate: int = 35, keep_pngs: bool = True) -> None:
     """converts the save png figs to mp4 with ffmpeg
 
     Args:
@@ -51,7 +61,7 @@ def make_video(png_dir: str, vid_fname: str, keep_pngs: bool = True) -> None:
         os.remove(vid_fname)
 
     # make video
-    cmd = f"ffmpeg -r 35 -f image2 -i '{png_dir}'/%05d.png -vcodec libx264 \
+    cmd = f"ffmpeg -r {framerate} -f image2 -i '{png_dir}'/%05d.png -vcodec libx264 \
     -crf 25 -pix_fmt yuv420p '{vid_fname}'"
     os.system(cmd)
     print(f"Saving video to: {vid_fname}")
@@ -76,8 +86,6 @@ def lighten_color(color, amount=0.5):
     >> lighten_color('#F034A3', 0.6)
     >> lighten_color((.3,.55,.1), 0.5)
     """
-    import matplotlib.colors as mc
-    import colorsys
 
     try:
         c = mc.cnames[color]
