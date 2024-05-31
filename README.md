@@ -62,16 +62,16 @@ Check it is installed by running `which ffmpeg` in the terminal. More details ca
 
 ## Default Fish animation
 
-![fish_ani_template](https://github.com/ThomasMullen/fish_simulator/fish_imgs/fish_animate.png)
+![fish_ani_template](https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/fish_animate.png?raw=true)
 
-![zebrafish_example](https://github.com/ThomasMullen/fish_simulator/fish_imgs/example_anim.gif)
+![zebrafish_example](https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/example_anim.gif?raw=true)
 
 ## Default Fish image
 
 ![fish_template](https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/fish.png?raw=true)
 
 
-![zebrafish_example](https://github.com/ThomasMullen/fish_simulator/fish_imgs/example_img.gif)
+![zebrafish_example](https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/example_img.gif?raw=true)
 
 
 ## Example
@@ -98,6 +98,12 @@ run(
 <video src="https://github.com/ThomasMullen/fish_simulator/fish_simulator/examples/demo_vid/run_ani_swim01.mp4" width="640" height="480" controls>
 Your browser does not support the video tag.
 </video>
+
+
+
+https://github.com/ThomasMullen/fish_simulator/assets/38111949/4df1ebc9-e5da-44bd-8c51-1f556040c67e
+
+
 
 ### Real larval zebrafish simulation plot
 
@@ -129,9 +135,10 @@ make_video(
 )
 ```
 
-<video src="https://github.com/ThomasMullen/fish_simulator/examples/demo_vid/run_img_swim01.mp4" width="640" height="480" controls>
-Your browser does not support the video tag.
-</video>
+
+
+https://github.com/ThomasMullen/fish_simulator/assets/38111949/854c1420-c777-4a83-951d-6f31bebe175c
+
 
 
 ## Key Functions
