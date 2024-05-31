@@ -3,4 +3,5 @@ graft fish_simulator
 graft examples
 graft tests
 
-include **/*.png
+include *.png
+include *.npy
