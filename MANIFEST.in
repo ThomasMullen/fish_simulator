@@ -12,3 +12,4 @@ recursive-include fish_simulator/templates/template_img2 *
 recursive-include fish_simulator/templates/template_img2/segs *
 recursive-include examples/ *
 recursive-include tests/ *
+recursive-include tests/fixtures/ *
