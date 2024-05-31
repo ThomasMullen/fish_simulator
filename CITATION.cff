@@ -5,8 +5,8 @@ authors:
     given-names: Thomas
     orcid: 0000-0002-3695-4477
 title: "Fish Behaviour Simulator"
-version: 0.1.1
+version: 0.1.11
 identifiers:
   - type: doi
-    value: NAN
-date-released: 2024-05-30
+    value: 10.5281/zenodo.11406459
+date-released: 2024-06-01
