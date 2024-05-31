@@ -1,7 +1,14 @@
 # MANIFEST.in -- just for illustration
-graft fish_simulator
-graft examples
-graft tests
-
-include *.png
-include *.npy
+include MANIFEST.in
+include pyproject.toml
+include *.md
+include *.txt
+include *.rst
+recursive-include fish_simulator *.pyx *.pxd *.pxi *.py *.pyi *.h *.ini *.npy *.txt *.in *.md
+recursive-include fish_simulator/templates *
+recursive-include fish_simulator/templates/template_img *
+recursive-include fish_simulator/templates/template_img/segs *
+recursive-include fish_simulator/templates/template_img2 *
+recursive-include fish_simulator/templates/template_img2/segs *
+recursive-include examples/ *
+recursive-include tests/ *
