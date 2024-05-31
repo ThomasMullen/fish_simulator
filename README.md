@@ -68,7 +68,8 @@ Check it is installed by running `which ffmpeg` in the terminal. More details ca
 
 ## Default Fish image
 
-![fish_template](https://github.com/ThomasMullen/fish_simulator/fish_imgs/fish.png)
+![fish_template](https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/fish.png?raw=true)
+
 
 ![zebrafish_example](https://github.com/ThomasMullen/fish_simulator/fish_imgs/example_img.gif)
 
