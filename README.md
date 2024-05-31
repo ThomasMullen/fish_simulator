@@ -63,22 +63,22 @@ Check it is installed by running `which ffmpeg` in the terminal. More details ca
 ## Default Fish animation
 
 <p align="center">
-  <img src="https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/fish_animate.png?raw=true" alt="drawing" width="200"/>
+  <img src="https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/fish_animate.png?raw=true" alt="drawing" width="400"/>
 </p>
 
 <p align="center">
-  <img src="https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/example_anim.gif?raw=true" alt="drawing" width="200"/>
+  <img src="https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/example_anim.gif?raw=true" alt="drawing" width="400"/>
 </p>
 
 
 ## Default Fish image
 
 <p align="center">
-  <img src="https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/fish.png?raw=true" alt="drawing" width="200"/>
+  <img src="https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/fish.png?raw=true" alt="drawing" width="400"/>
 </p>
 
 <p align="center">
-  <img src="https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/example_img.gif?raw=true" alt="drawing" width="200"/>
+  <img src="https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/example_img.gif?raw=true" alt="drawing" width="400"/>
 </p>
 
 
