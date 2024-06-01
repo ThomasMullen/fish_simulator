@@ -1,4 +1,4 @@
-# Zebrafish Tail Animator
+# Fish Tail Simulator
 
 ![Pylint](https://github.com/ThomasMullen/zf_animator_tsm/actions/workflows/pylint.yml/badge.svg)
 ![PythonPackage](https://github.com/ThomasMullen/zf_animator_tsm/actions/workflows/python-package.yml/badge.svg)
@@ -6,31 +6,30 @@
 ![PyPI version](https://badge.fury.io/py/fish-simulator.svg)
 [![DOI](https://zenodo.org/badge/683316671.svg)](https://zenodo.org/doi/10.5281/zenodo.11406458)
 
-Python toolbox to transform zebrafish tracking data to tail animations
+A Python toolbox for transforming fish tail tracking data into tail animations.
 
 ## Description
 
-`zf_animator` is a Python package used to create visualisation of how swimming data looks from high-speed tracking data.
-The typical data used should be the tail angle along segments of the tail.
-The package will convert these tail angles to x- y- coordinates, and interpolate many more points along the range of tracked tail segments.
-These sets of coordinates will then transform slices of the zebrafish image, producing a stack of .png files that can be rendered into a mp4 file.
+`fish_simulator` is a Python package used to visualize swimming data from high-speed tracking. 
+The typical data used is the tail angle along segments of the tail.
+The package converts these tail angles to x-y coordinates and interpolates additional points along the range of tracked tail segments.
+These sets of coordinates then transform slices of the fish image, producing a stack of `.png` files that can be rendered into an `mp4` file.
 
-Animations of the larval zebrafish postures are warped using a piece wise affine transformation using the interpolated x-y coordinates.
-
+Animations of fish postures are created using a piecewise affine transformation with the interpolated x-y coordinates.
 
 ## Package installation
 
-This package can be installed via pip
+This package can be installed via [pip](https://pypi.org/project/fish-simulator/):
 
 ```bash
 pip install fish-simulator
 ```
 
-Alternatively, you can download and locally install the package.
+Alternatively, you can download and locally install the package:
 
 ```bash
 cd path/to/save/package
-git clone clone-latest-tag git@github.com:ThomasMullen/fish_simulator.git
+git clone git@github.com:ThomasMullen/fish_simulator.git
 cd ./fish_simulator
 python -m build
 # go to working project
@@ -45,23 +44,24 @@ pip install -e path/to/save/package
 ### Installation instructions
 
 To convert the `.png` files to an `.mp4` animation requires `ffmpeg` to be installed on the running computer.
-This can be install in Ubuntu in the terminal:
+On Ubuntu, install ffmpeg via terminal:
 
 ```bash
 sudo apt install ffmpeg
 ```
 
-Or with OS X can be installed:
+On macOS, install ffmpeg with Homebrew:
 
 ```bash
 brew install ffmpeg
 ```
 
-Check it is installed by running `which ffmpeg` in the terminal. More details can be found [here](https://github.com/kkroening/ffmpeg-python/tree/master).
+> **NOTE**: Check if `ffmpeg` is installed by running `which ffmpeg` in the terminal. More details can be found [here](https://github.com/kkroening/ffmpeg-python/tree/master).
 
-### Dependencies
+> **NOTE**: Package can run without `ffmpeg`, but you will not be able to make videos from `.png` files. To avoid dependency issues, set the `vid_fname` argument to `None`.
 
-## Default Fish animation
+
+## Fish animation template
 
 <p align="center">
   <img src="https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/fish_animate.png?raw=true" alt="drawing" width="400"/>
@@ -72,7 +72,9 @@ Check it is installed by running `which ffmpeg` in the terminal. More details ca
 </p>
 
 
-## Default Fish image
+## Fish image template
+
+Fish template is an image of the larval zebrafish.
 
 <p align="center">
   <img src="https://github.com/ThomasMullen/fish_simulator/blob/main/fish_imgs/fish.png?raw=true" alt="drawing" width="400"/>
@@ -83,7 +85,7 @@ Check it is installed by running `which ffmpeg` in the terminal. More details ca
 </p>
 
 
-## Example
+## Examples
 
 ### Simple illustrative plot of posture
 
@@ -92,7 +94,7 @@ These functions are `plot_bout_elapse`, `plot_skeletal_postures`, and `plot_skel
 
 ```python
 import numpy as np
-from fish_simulator import run
+from fish_simulator.simulator import run, plot_skeletal_postures_with_trace
 
 data_arr = np.load("fish_simulator/test/fixtures/swim01.npy")
 run(
@@ -101,6 +103,7 @@ run(
     dir="path/to/dir/plts",
     vid_fp="path/to/video/anim.mp4",
     line_wid=1
+    fps=700,
     )
 ```
 
@@ -114,13 +117,17 @@ https://github.com/ThomasMullen/fish_simulator/assets/38111949/4df1ebc9-e5da-44b
 
 
 
-### Real larval zebrafish simulation plot
+### Larval zebrafish simulation plot
 
 There are two plotting functions using the real larvae: `plot_tail_image` and `plot_tail_image_with_trace`.
 
 ```python
 import numpy as np
-from fish_simulator import run, plot_tail_image_with_trace, plot_tail_image
+from fish_simulator.simulator import (
+    run,
+    plot_tail_image_with_trace,
+    plot_tail_image,
+)
 
 run(
     data_arr,
@@ -128,13 +135,14 @@ run(
     plot_func=plot_tail_image_with_trace,
     dir="path/to/dir/plts",
     vid_fp="path/to/video/anim.mp4",
+    fps=700,
 )
 ```
 
 Generate a video from collections of `.png` files
 
 ```python
-from utils import make_video
+from fish_simulator.utils import make_video
 
 make_video(
     png_dir="path/to/png/files/",
@@ -150,4 +158,13 @@ https://github.com/ThomasMullen/fish_simulator/assets/38111949/854c1420-c777-4a8
 
 
 
-## Key Functions
+## Citation
+```latex
+@software{Soares_Mullen_Fish_Behaviour_Simulator_2024,
+  author = {Soares Mullen, Thomas},
+  month = jun,
+  title = {{Fish Tail Simulator}},
+  version = {0.1.11},
+  year = {2024}
+}
+```
