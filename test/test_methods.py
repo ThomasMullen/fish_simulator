@@ -12,7 +12,9 @@ class TestImageLoader(unittest.TestCase):
         """Instantiate default and constructed class"""
         print("\nRunning setUp method...")
         self.img_loader_default = image_loader.ImageLoader()
-        self.img_loader = image_loader.ImageLoader(f"{Path(__file__).parents[1]}/fish_simulator/templates/template_img2/segs")
+        self.img_loader = image_loader.ImageLoader(
+            f"{Path(__file__).parents[1]}/fish_simulator/templates/template_img2/segs"
+        )
 
     def tearDown(self):
         """Destruct test class"""
@@ -30,7 +32,8 @@ class TestImageLoader(unittest.TestCase):
         """Test the default directory is valid"""
         print("Running test_default_dir is true")
         self.assertEqual(
-            "fish_simulator/templates/template_img2/segs" in str(self.img_loader_default.seg_dir),
+            "fish_simulator/templates/template_img2/segs"
+            in str(self.img_loader_default.seg_dir),
             True,
         )
 

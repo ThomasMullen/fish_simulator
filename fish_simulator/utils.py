@@ -46,7 +46,9 @@ def make_dir(fp: Union[Path, str]) -> Path:
     return Path(fp)
 
 
-def make_video(png_dir: str, vid_fname: str, framerate: int = 35, keep_pngs: bool = True) -> None:
+def make_video(
+    png_dir: str, vid_fname: str, framerate: int = 35, keep_pngs: bool = True
+) -> None:
     """converts the save png figs to mp4 with ffmpeg
 
     Args:
