@@ -19,7 +19,7 @@ Animations of fish postures are created using a piecewise affine transformation 
 
 ## Package installation
 
-This package can be installed via [pip](https://pypi.org/project/fish-simulator/):
+This package can be installed via [PyPi](https://pypi.org/project/fish-simulator/):
 
 ```bash
 pip install fish-simulator
