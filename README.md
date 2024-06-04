@@ -100,7 +100,7 @@ data_arr = np.load("fish_simulator/test/fixtures/swim01.npy")
 run(
     data_arr,
     plot_func=plot_skeletal_postures_with_trace,
-    dir="path/to/dir/plts",
+    png_dir="path/to/dir/plts",
     vid_fp="path/to/video/anim.mp4",
     line_wid=1
     fps=700,
@@ -133,7 +133,7 @@ run(
     data_arr,
     # plot_func=plot_tail_image,
     plot_func=plot_tail_image_with_trace,
-    dir="path/to/dir/plts",
+    png_dir="path/to/dir/plts",
     vid_fp="path/to/video/anim.mp4",
     fps=700,
 )
