@@ -58,12 +58,12 @@ def make_video(
         Defaults to True.
     """
     vid_fname = Path(vid_fname)
-    png_dir = Path(png_dir)
+    png_dir = Path(png_dir, f"%05d.png")
     if vid_fname.exists():
         os.remove(vid_fname)
 
     # make video
-    cmd = f"ffmpeg -r {framerate} -f image2 -i '{png_dir}'/%05d.png -vcodec libx264 \
+    cmd = f"ffmpeg -r {framerate} -f image2 -i '{png_dir}' -vcodec libx264 \
     -crf 25 -pix_fmt yuv420p '{vid_fname}'"
     os.system(cmd)
     print(f"Saving video to: {vid_fname}")
