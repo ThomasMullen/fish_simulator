@@ -19,7 +19,7 @@ class ImageLoader:
         self.seg_dir = (
             Path(Path(__file__).parent, "templates", "template_img2", "segs")
             if seg_dir is None
-            else seg_dir
+            else Path(seg_dir)
         )
         self.head_dir = Path(self.seg_dir).parent
         print(self.seg_dir)
