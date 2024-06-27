@@ -48,13 +48,25 @@ def run(
         **kwargs: Additional keyword arguments for the plotting function.
     """
     png_dir = make_dir(png_dir)
-    # intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(data, *args)
     if plot_func in [plot_tail_image, plot_tail_image_with_trace]:
         posture_struct = make_pixel_posture_struct()
-        intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(-1 * data, posture_struct, intp_n_segs=40, img_kwargs={"body_to_tail_mm": 156.3, "tail_to_tail_mm": -181.3},)
+        intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(
+            -1 * data,
+            posture_struct,
+            intp_n_segs=40,
+            img_kwargs={"body_to_tail_mm": 156.3, "tail_to_tail_mm": -181.3},
+        )
     else:
         posture_struct = PostureStruct()  # or whatever the default is
-        intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(-1 * data, posture_struct, intp_n_segs=30, img_kwargs={"body_to_tail_mm": 0.5,"tail_to_tail_mm": 0.32,})
+        intp_xy, (low_xy, upp_xy), _ = generate_skeletal_postures(
+            -1 * data,
+            posture_struct,
+            intp_n_segs=30,
+            img_kwargs={
+                "body_to_tail_mm": 0.5,
+                "tail_to_tail_mm": 0.32,
+            },
+        )
 
     plot_func(data, low_xy, intp_xy, upp_xy, png_dir, **kwargs)
     if vid_fp is not None:
@@ -80,7 +92,7 @@ def generate_skeletal_postures(
     Args:
         data (NDArray): The input data.
         f_path (str): The file path.
-        posture_struct (PostureStruct, optional): The posture structure. Defaults to 
+        posture_struct (PostureStruct, optional): The posture structure. Defaults to
             PostureStruct().
         intp_n_segs (int, optional): The number of interpolation segments. Defaults to 30.
 
@@ -212,7 +224,7 @@ def plot_tail_image_with_trace(
 ):
     """Plot tail image with trace.
 
-    This function plots the tail image with the corresponding trace data. It applies a 
+    This function plots the tail image with the corresponding trace data. It applies a
     transformation to the tail image based on the lower, center, and upper coordinates. It saves
     the resulting images as PNG files.
 
@@ -260,7 +272,7 @@ def plot_tail_image_with_trace(
         ax_trace.plot(time_ms[:t_], trace_data[:t_], alpha=1, lw=line_wid)
         ax_trace.set(
             xlim=(0, time_ms[-1]),
-            ylim=(-np.pi*1.5, np.pi*1.5),
+            ylim=(-np.pi * 1.5, np.pi * 1.5),
             xticks=[],
             yticks=[],
         )
@@ -305,7 +317,7 @@ def plot_skeletal_postures_with_trace(
         center (NDArray): The center skeletal data.
         upper (NDArray): The upper skeletal data.
         f_path (str): The file path to save the plots.
-        posture_struct (PostureStruct, optional): The posture structure. Defaults to 
+        posture_struct (PostureStruct, optional): The posture structure. Defaults to
         PostureStruct()
         fps (int, optional): The frames per second. Defaults to 700.
         line_wid (int, optional): The line width. Defaults to 2.
@@ -323,7 +335,7 @@ def plot_skeletal_postures_with_trace(
         ax_trace.plot(time_ms[:t_], trace_data[:t_], alpha=1)
         ax_trace.set(
             xlim=(0, time_ms[-1]),
-            ylim=(-np.pi*1.5, np.pi*1.5),
+            ylim=(-np.pi * 1.5, np.pi * 1.5),
             xticks=[],
             yticks=[],
         )
@@ -384,7 +396,7 @@ def plot_skeletal_postures(
         center (NDArray): The center skeletal structure.
         upper (NDArray): The upper skeletal structure.
         f_path (str): The file path to save the plots.
-        posture_struct (PostureStruct, optional): The posture structure. Defaults to 
+        posture_struct (PostureStruct, optional): The posture structure. Defaults to
         PostureStruct().
         line_wid (int, optional): The line width of the plots. Defaults to 2.
     """
