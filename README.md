@@ -168,3 +168,7 @@ https://github.com/ThomasMullen/fish_simulator/assets/38111949/854c1420-c777-4a8
   year = {2024}
 }
 ```
+
+This project has received funding from the European Union’s Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement #813457.
+
+
