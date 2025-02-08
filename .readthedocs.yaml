@@ -4,8 +4,19 @@
 # Required
 version: 2
 
-# Set the OS, Python version, and other tools you might need
+# Set the version of Python and other tools you might need
 build:
-  os: ubuntu-24.04
-  tools:
-    python: "3.13"
+   os: ubuntu-22.04
+   tools:
+      python: "3.11"
+
+sphinx:
+   fail_on_warning: true
+
+# Optionally declare the Python requirements required to build your docs
+python:
+   install:
+      - method: pip
+        path: .
+        extra_requirements:
+           - docs
